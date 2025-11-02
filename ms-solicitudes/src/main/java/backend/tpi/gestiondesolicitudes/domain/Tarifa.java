@@ -1,6 +1,8 @@
 package backend.tpi.gestiondesolicitudes.domain;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import java.math.BigDecimal;
 
@@ -18,11 +20,21 @@ public class Tarifa {
     @Column(name = "id_tarifa")
     private Integer id;
 
+    @NotBlank(message = "la descrip de tarifa es obligatoria")
     private String descripcion;
+    
+    @NotNull(message = "El volumen mínimo es obligatorio")
     private BigDecimal volMin;
-    private BigDecimal volMax;
-    private BigDecimal costoBaseKmXVol;
-    private BigDecimal valorCombustible;
-    private Boolean activa;
 
+    @NotNull(message = "El volumen máximo es obligatorio")
+    private BigDecimal volMax;
+
+    @NotNull(message = "El costo base por km x volumen es obligatorio")
+    private BigDecimal costoBaseKmXVol;
+
+    @NotNull(message = "El valor del combustible es obligatorio")
+    private BigDecimal valorCombustible;
+
+    @NotNull
+    private Boolean activa;
 }

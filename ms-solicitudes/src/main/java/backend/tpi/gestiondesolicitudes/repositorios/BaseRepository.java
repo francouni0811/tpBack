@@ -48,4 +48,28 @@ public interface BaseRepository<T, ID> extends JpaRepository<T, ID> {
     default void eliminarPorId(ID id) {
         deleteById(id);
     }
+
+    // agregada por facu
+    default Optional<T> modificar(ID id, T entidadNueva) {
+        if (existsById(id)) {
+            return Optional.of(save(entidadNueva));
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    /**
+     * Verifica si existe una entidad con el ID dado.
+     */
+    default boolean existe(ID id) {
+        return existsById(id);
+    }
+
+    /**
+     * Cuenta cuántas entidades existen en total.
+     */
+    default long contar() {
+        return count();
+    }
+
 }

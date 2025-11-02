@@ -1,4 +1,4 @@
-package backend.tpi.gestionDeSolicitudes.domain;
+package backend.tpi.gestiondesolicitudes.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -18,7 +18,7 @@ public class Contenedor {
     private Integer id;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "id_cliente")
+    @JoinColumn(name = "id_cliente", nullable = false)
     private Cliente cliente;
 
     private BigDecimal pesoKg;

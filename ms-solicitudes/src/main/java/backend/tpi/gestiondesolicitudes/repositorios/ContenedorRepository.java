@@ -1,6 +1,6 @@
-package backend.tpi.gestiondesolicitudess.repositorios;
+package backend.tpi.gestiondesolicitudes.repositorios;
 
-import backend.tpi.gestionDeSolicitudes.domain.Contenedor;
+import backend.tpi.gestiondesolicitudes.domain.Contenedor;
 
 public interface ContenedorRepository extends BaseRepository<Contenedor, Integer> {
 }

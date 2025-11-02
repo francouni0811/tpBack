@@ -1,6 +1,7 @@
 package backend.tpi.gestiondesolicitudes.domain;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 @Entity
@@ -17,6 +18,7 @@ public class Cliente {
     @Column(name = "id_cliente")
     private Integer id;
 
+    @NotBlank(message = "El nombre es obligatorio")
     private String nombre;
 
     private String telefono;
