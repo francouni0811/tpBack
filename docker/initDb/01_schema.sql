@@ -16,7 +16,7 @@ CREATE TABLE clientes (
   nombre         VARCHAR(120) NOT NULL,
   telefono       NUMERIC(20,0),
   email          VARCHAR(180)
-  -- UNIQUE (email)               -- descomentar si querÃ©s evitar duplicados
+  -- UNIQUE (email)               -- descomentar si queremos evitar duplicados
 );
 
 -- =========================
