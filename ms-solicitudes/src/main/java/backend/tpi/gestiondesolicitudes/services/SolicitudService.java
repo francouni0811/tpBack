@@ -35,15 +35,35 @@ public class SolicitudService {
         return solicitudRepository.listarStream();
     }
 
-    public Solicitud guardar(Solicitud nuevo) {
+    public Solicitud guardar(Solicitud nuevaSolicitud) {
         /*
          * 
          * 
          *    TODO: !!!!!! FALTA TODA LA LOGICA DE AGREGAR UNA SOLICITUD, REALIZAR TODOS LOS CALCULOS DE SUS COSTOS
          *    ASOCIADOS, ETC....
          * 
-         */
-        return solicitudRepository.guardar(nuevo);
+        */
+        
+        // verificar si el cliente existe sino retorno null
+        if (!clienteRepository.existe(nuevaSolicitud.getCliente().getId())) { return null;}
+        // verificar si el contenedor existe o retorno null
+        if (!contenedorRepository.existe(nuevaSolicitud.getContenedor().getId())) { return null;}
+        // verificar si la tarifa existe o retorno null
+        if (!tarifaRepository.existe(nuevaSolicitud.getTarifa().getId())) {return null;}
+
+        // hay que tomar origen lat y long, y destino lat y long y mandar a crear una ruta al ms-transporte con restclient
+        //la creacion de una ruta desencadena la creacion de sus respectivos tramos
+        // !! la ruta tiene una solicitud!! y los tramos tienen una ruta!!
+
+        // una vez se haya creado la ruta asociada a la solicitud y sus respectivos tramos:
+        
+        //calcular costo estimado -> sumar costo estimado de todos los tramos asociasdos a la ruta
+        //calcular tiempo estimado
+        // calcular costo final
+        //calcular tiempo final
+
+
+        return solicitudRepository.guardar(nuevaSolicitud);
     }
 
     public void eliminarPorId(Integer id) {

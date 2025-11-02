@@ -18,8 +18,10 @@ public class Transportista {
     private Integer id;
 
     @NotBlank(message = "El nombre es obligatorio")
+    @Column(name = "nombre", nullable = false, length = 120)
     private String nombre;
 
+    @Column(name = "telefono", length = 20)
     private String telefono;
 }
 
