@@ -28,7 +28,7 @@ public class ContenedorController {
         this.contenedorService = contenedorService;
     }
 
-    // GET todos
+    // GET /api/v1/contenedores
     @GetMapping()
     public ResponseEntity<List<Contenedor>> obtenerTodosContenedores() {
 
@@ -41,14 +41,14 @@ public class ContenedorController {
         return ResponseEntity.ok(contenedoresEncontrados);
     }
 
-    // GET por id
+    // GET /api/v1/contenedores/{id}
     @GetMapping("/{id}")
     public ResponseEntity<Contenedor> obtenerContenedorPorId(@PathVariable Integer id) {
         Optional<Contenedor> contenedorEncontrado = contenedorService.buscarPorId(id);
         return contenedorEncontrado.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
-    // POST 
+    // POST /api/v1/contenedores
     @PostMapping()
     public ResponseEntity<Contenedor> crearContenedor(@Valid @RequestBody Contenedor nuevoContenedor) {
         Optional<Contenedor> contenedorCreado = contenedorService.guardar(nuevoContenedor);
@@ -58,7 +58,7 @@ public class ContenedorController {
             .orElseGet(() -> ResponseEntity.status(HttpStatus.BAD_REQUEST).build()); // 400 si no se pudo
     }
 
-    // PUT
+    // PUT /api/v1/contenedores/{id}
     @PutMapping("/{id}")
     public ResponseEntity<Contenedor> modificarContenedor(@PathVariable("id") Integer id,@Valid @RequestBody Contenedor contenedorActualizar) {
         Optional<Contenedor> contenedorActualizado = contenedorService.modificar(id, contenedorActualizar);
@@ -66,7 +66,7 @@ public class ContenedorController {
         return contenedorActualizado.map(c -> ResponseEntity.status(HttpStatus.OK).body(c)).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
-    // DELETE
+    // DELETE /api/v1/contenedores/{id}
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> borrarContenedor(@PathVariable Integer id) {
         boolean encontrado = contenedorService.existe(id);

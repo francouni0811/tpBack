@@ -27,7 +27,7 @@ public class ClienteController {
         this.clienteService = clienteService;
     }
 
-    //GET api/v1/clientes
+    // GET /api/v1/clientes
     @GetMapping
     public ResponseEntity<List<Cliente>> obtenerTodosClientes() {
         
@@ -42,20 +42,21 @@ public class ClienteController {
         return ResponseEntity.ok(clientesEncontrados);
     }
 
-    //GET /api/v1/clientes/{id_cliente}
+    // GET /api/v1/clientes/{id}
     @GetMapping("/{id}")
     public ResponseEntity<Cliente> obtenerClientePorId(@PathVariable("id") Integer id) {
         Optional<Cliente> clienteEncontrado = clienteService.buscarPorId(id);
         return clienteEncontrado.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
     
-    //POST /api/v1/clientes
+    // POST /api/v1/clientes
     @PostMapping
     public ResponseEntity<Cliente> crearCliente(@Valid @RequestBody Cliente clienteNuevo) {
         Cliente clienteGuardado = clienteService.guardar(clienteNuevo);
         return ResponseEntity.status(HttpStatus.CREATED).body(clienteGuardado);
     }
 
+    // PUT /api/v1/clientes/{id}
     @PutMapping("/{id}")
     public ResponseEntity<Cliente> actualizarCliente(@PathVariable("id") Integer id, @RequestBody Cliente nuevoCliente) {
 

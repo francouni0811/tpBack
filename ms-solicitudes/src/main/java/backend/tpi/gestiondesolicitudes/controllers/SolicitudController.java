@@ -37,7 +37,7 @@ public class SolicitudController {
     * 
     */
 
-    // GET TODOS
+    // GET /api/v1/solicitudes
     @GetMapping
     public ResponseEntity<List<Solicitud>> obtenerTodasSolicitudes() {
 
@@ -49,14 +49,14 @@ public class SolicitudController {
         return ResponseEntity.ok(solicitudesEncontradas);
     }
 
-    // GET id
+    // GET /api/v1/solicitudes/{id}
     @GetMapping("/{id}")
     public ResponseEntity<Solicitud> obtenerSolicitudPorId(@PathVariable("id") Integer id) {
         Optional<Solicitud> solicitudEncontrada = solicitudService.buscarPorId(id);
         return solicitudEncontrada.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
-    //POST
+    // POST /api/v1/solicitudes
     @PostMapping
     public ResponseEntity<Solicitud> crearSolicitud(@Valid @RequestBody Solicitud nuevaSolicitud) {
         Solicitud solicitudCreada = solicitudService.guardar(nuevaSolicitud);
@@ -68,14 +68,14 @@ public class SolicitudController {
         }
     }
 
-    //PUT
+    // PUT /api/v1/solicitudes/{id}
     @PutMapping("/{id}")
     public ResponseEntity<Solicitud> modificarSolicitud(@PathVariable("id") Integer id, @Valid @RequestBody Solicitud solicitudActualizar) {
         Optional<Solicitud> solicitudActualizada = solicitudService.modificar(id, solicitudActualizar);
         return solicitudActualizada.map(c -> ResponseEntity.status(HttpStatus.OK).body(c)).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
-    //DELETE
+    // DELETE /api/v1/solicitudes/{id}
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> borrarSolicitud(@PathVariable("id") Integer id) {
         boolean encontrada = solicitudService.existe(id);
