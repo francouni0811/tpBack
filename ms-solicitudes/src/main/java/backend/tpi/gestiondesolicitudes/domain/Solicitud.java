@@ -45,7 +45,7 @@ public class Solicitud {
     // private Double destinoLongitud;
 
     // private LocalDateTime fechaSolicitud;
-    
+
     @Column(name = "costo_estimado")
     private BigDecimal costoEstimado;
 

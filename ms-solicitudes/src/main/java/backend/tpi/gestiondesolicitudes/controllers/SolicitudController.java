@@ -1,5 +1,6 @@
 package backend.tpi.gestiondesolicitudes.controllers;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,13 +30,13 @@ public class SolicitudController {
     }
 
     /*
-    * TODO: ENDPOINTS ESPECIFICOS DE SOLICITUDES
-    * 
-    * 
-    * 
-    * 
-    * 
-    */
+     * TODO: ENDPOINTS ESPECIFICOS DE SOLICITUDES
+     * 
+     * 
+     * 
+     * 
+     * 
+     */
 
     // GET /api/v1/solicitudes
     @GetMapping
@@ -53,7 +54,8 @@ public class SolicitudController {
     @GetMapping("/{id}")
     public ResponseEntity<Solicitud> obtenerSolicitudPorId(@PathVariable("id") Integer id) {
         Optional<Solicitud> solicitudEncontrada = solicitudService.buscarPorId(id);
-        return solicitudEncontrada.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+        return solicitudEncontrada.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
     // POST /api/v1/solicitudes
@@ -62,17 +64,18 @@ public class SolicitudController {
         Solicitud solicitudCreada = solicitudService.guardar(nuevaSolicitud);
         if (solicitudCreada != null) {
             return ResponseEntity.status(HttpStatus.CREATED).body(solicitudCreada); // 201 Created
-        }
-        else {
+        } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build(); // 400
         }
     }
 
     // PUT /api/v1/solicitudes/{id}
     @PutMapping("/{id}")
-    public ResponseEntity<Solicitud> modificarSolicitud(@PathVariable("id") Integer id, @Valid @RequestBody Solicitud solicitudActualizar) {
+    public ResponseEntity<Solicitud> modificarSolicitud(@PathVariable("id") Integer id,
+            @Valid @RequestBody Solicitud solicitudActualizar) {
         Optional<Solicitud> solicitudActualizada = solicitudService.modificar(id, solicitudActualizar);
-        return solicitudActualizada.map(c -> ResponseEntity.status(HttpStatus.OK).body(c)).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+        return solicitudActualizada.map(c -> ResponseEntity.status(HttpStatus.OK).body(c))
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
     // DELETE /api/v1/solicitudes/{id}
@@ -82,10 +85,34 @@ public class SolicitudController {
         if (encontrada) {
             solicitudService.eliminarPorId(id);
             return ResponseEntity.noContent().build();
-        }
-        else {
+        } else {
             return ResponseEntity.notFound().build();
         }
     }
+
+    // GET costo aprox
+    @GetMapping("/{id}/costo-aprox")
+    public ResponseEntity<BigDecimal> obtenerCostoAprox(@PathVariable("id") Integer id) {
+        BigDecimal costoAprox = solicitudService.obtenerCostoAprox(id);
+        if (costoAprox != null) {
+            return ResponseEntity.ok(costoAprox);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
+
+    // GET costo final
+    @GetMapping("/{id}/costo-final")
+    public ResponseEntity<BigDecimal> obtenerCostoFinal(@PathVariable("id") Integer id) {
+        BigDecimal costoFinal = solicitudService.obtenerCostoFinal(id);
+        if (costoFinal != null) {
+            return ResponseEntity.ok(costoFinal);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
+
+    // GET rutas posibles
+    // PUT asignar posible ruta
 
 }
