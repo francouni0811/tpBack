@@ -47,8 +47,27 @@ public class ProxyService {
             request.body(body);
         }
 
+    try {
         return request
-                .retrieve()
-                .toEntity(String.class);
+            .retrieve()
+            .toEntity(String.class);
+        } catch (org.springframework.web.client.RestClientResponseException e) {
+            // Si el downstream responde 4xx/5xx, devolvemos el mismo status y cuerpo al cliente
+            String responseBody = e.getResponseBodyAsString();
+            // En Spring 6+ RestClientResponseException expone getStatusCode() que devuelve
+            // HttpStatusCode; no existe getRawStatusCode() en algunas versiones. Usamos
+            // el valor numérico y lo pasamos directamente al ResponseEntity.
+            int rawStatus = 500;
+            try {
+                if (e.getStatusCode() != null) {
+                    rawStatus = e.getStatusCode().value();
+                }
+            } catch (Exception ex) {
+                // fallback a 500 si no podemos obtener el status
+                rawStatus = 500;
+            }
+
+            return ResponseEntity.status(rawStatus).body(responseBody);
+        }
     }
 }

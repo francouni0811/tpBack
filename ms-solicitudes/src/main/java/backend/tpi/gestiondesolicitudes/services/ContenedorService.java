@@ -34,13 +34,15 @@ public class ContenedorService {
     }
 
     public Optional<Contenedor> guardar(Contenedor nuevo) {
-        
-        // si se pasa el atributo de cliente vacio o cliente sin id, devolvemos optional empty
+
+        // si se pasa el atributo de cliente vacio o cliente sin id, devolvemos optional
+        // empty
         if (nuevo.getCliente() == null || nuevo.getCliente().getId() == null) {
             return Optional.empty();
         }
 
-        // sino, lo buscamos al cliente por id. Si se encuentra devolvemos al cliente, sino optional empty
+        // sino, lo buscamos al cliente por id. Si se encuentra devolvemos al cliente,
+        // sino optional empty
         return clienteRepository.buscarPorId(nuevo.getCliente().getId())
                 .map(cliente -> contenedorRepository.guardar(nuevo));
     }
@@ -51,7 +53,8 @@ public class ContenedorService {
 
     public Optional<Contenedor> modificar(Integer id, Contenedor nuevo) {
         /*
-         *   TODO: FALTA IMPLEMENTAR LOGICA DE MODIFICACION, EVITAR MODIFICAR ATRIBUTOS REPETIDOS
+         * TODO: FALTA IMPLEMENTAR LOGICA DE MODIFICACION, EVITAR MODIFICAR ATRIBUTOS
+         * REPETIDOS
          */
         return contenedorRepository.modificar(id, nuevo);
     }
@@ -59,5 +62,5 @@ public class ContenedorService {
     public boolean existe(Integer id) {
         return contenedorRepository.existe(id);
     }
-    
+
 }

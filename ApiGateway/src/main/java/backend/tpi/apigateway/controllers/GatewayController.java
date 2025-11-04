@@ -22,8 +22,12 @@ public class GatewayController {
             @RequestBody(required = false) String body,
             @RequestHeader Map<String, String> headers) {
         String method = request.getMethod();
-        String fullPath = request.getRequestURI(); // ejemplo: /api/v1/clientes
-        String targetPath = fullPath.replace("/api/v1", ""); // queda /clientes
+        // request.getRequestURI() no incluye query string, así que la añadimos si
+        // existe
+        String fullPath = request.getRequestURI()
+                + (request.getQueryString() != null ? "?" + request.getQueryString() : ""); // ejemplo:
+                                                                                            // /api/v1/clientes?foo=1
+        String targetPath = fullPath.replace("/api/v1", ""); // queda /clientes?foo=1
         return proxyService.forward(method, targetPath, body, headers);
     }
 }

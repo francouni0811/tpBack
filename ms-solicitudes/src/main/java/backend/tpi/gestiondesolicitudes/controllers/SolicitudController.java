@@ -2,6 +2,7 @@ package backend.tpi.gestiondesolicitudes.controllers;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
@@ -56,6 +57,21 @@ public class SolicitudController {
         Optional<Solicitud> solicitudEncontrada = solicitudService.buscarPorId(id);
         return solicitudEncontrada.map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+    }
+
+    // GET /api/v1/solicitudes/{id}/estad
+    // Obtiene el estado de una solicitud por el ID de la solicitud
+    @GetMapping("/{id}/estado")
+    public ResponseEntity<Map<String, Object>> obtenerEstadoPorIdSolicitud(@PathVariable Integer id) {
+        var solicitudOpt = solicitudService.buscarPorId(id);
+        if (solicitudOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "No existe una solicitud con ID " + id));
+        }
+        var solicitud = solicitudOpt.get();
+        return ResponseEntity.ok(Map.of(
+                "idSolicitud", solicitud.getId(),
+                "estado", solicitud.getEstado()));
     }
 
     // POST /api/v1/solicitudes
