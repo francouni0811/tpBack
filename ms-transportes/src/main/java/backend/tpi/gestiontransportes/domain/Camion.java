@@ -32,7 +32,7 @@ public class Camion {
     @Column(name = "telefono", length = 20)
     private String telefono;
 
-    @Column(name = "capacidadKg", precision = 12, scale = 2)
+    @Column(name = "capacidadkg", precision = 12, scale = 2)
     private BigDecimal capacidadKg;
 
     @Column(name = "volumen_max", precision = 12, scale = 3)
@@ -41,10 +41,10 @@ public class Camion {
     @Column(name = "estado", length = 40)
     private String estado;
 
-    @Column(name = "consumoXKm", precision = 10, scale = 3)
+    @Column(name = "consumoxkm", precision = 10, scale = 3)
     private BigDecimal consumoXKm;
 
-    @Column(name = "costo_base_trasladoXKm", precision = 12, scale = 2)
+    @Column(name = "costo_base_trasladoxkm", precision = 12, scale = 2)
     private BigDecimal costoBaseTrasladoXKm;
 }
 

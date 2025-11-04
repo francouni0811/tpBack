@@ -2,6 +2,7 @@ package backend.tpi.apigateway.services;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -16,12 +17,26 @@ public class ProxyService {
 
     private final RestClient.Builder restClientBuilder;
 
-    // Cambiá este puerto si tu microservicio corre en otro
-    private static final String BASE_URL_MS_SOLICITUDES = "http://localhost:8081/api/v1";
+    @Value("${ms.solicitudes.url}")
+    private String baseUrlMsSolicitudes;
+
+    @Value("${ms.transportes.url}")
+    private String baseUrlMsTransportes;
 
     public ResponseEntity<String> forward(String method, String path, String body, Map<String, String> headers) {
         RestClient client = restClientBuilder.build();
-        String targetUrl = BASE_URL_MS_SOLICITUDES + path;
+        String targetUrl;
+        if (path.startsWith("/solicitudes") || path.startsWith("/clientes") || 
+            path.startsWith("/contenedores") || path.startsWith("/tarifas")) {
+            targetUrl = baseUrlMsSolicitudes + path;
+        } else if (path.startsWith("/transportistas") || path.startsWith("/camiones") || 
+                   path.startsWith("/depositos") || path.startsWith("/rutas") || 
+                   path.startsWith("/tramos")) {
+            targetUrl = baseUrlMsTransportes + path;
+        } else {
+            // Por defecto, mandamos a ms-solicitudes
+            targetUrl = baseUrlMsSolicitudes + path;
+        }
 
         log.info("➡️ Redirigiendo [{}] a {}", method, targetUrl);
 

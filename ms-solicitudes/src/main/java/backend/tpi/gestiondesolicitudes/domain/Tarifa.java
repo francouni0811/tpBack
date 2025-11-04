@@ -30,6 +30,7 @@ public class Tarifa {
     private BigDecimal volMax;
 
     @NotNull(message = "El costo base por km x volumen es obligatorio")
+    @Column(name = "costo_base_km_xvol")
     private BigDecimal costoBaseKmXVol;
 
     @NotNull(message = "El valor del combustible es obligatorio")
