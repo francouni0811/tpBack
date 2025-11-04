@@ -20,6 +20,7 @@ public class DemoApplication {
 		ConfigurableApplicationContext context = SpringApplication.run(DemoApplication.class, args);
 		System.out.println("funcionando.......................\n\n\n");
 
+		/*
 		Cliente cliente = new Cliente();
 		cliente.setNombre("Juan");
 		cliente.setTelefono("123456789");
@@ -30,7 +31,8 @@ public class DemoApplication {
 		ClienteService clienteService = new ClienteService(clienteRepository);
 		clienteService.guardar(cliente);
 		clienteService.guardar(cliente);
-		/*
+
+
 		 * TarifaRepository tarifaRepository = context.getBean(TarifaRepository.class);
 		 * TarifaService tarifaService = new TarifaService(tarifaRepository);
 		 * 
