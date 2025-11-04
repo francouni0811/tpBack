@@ -26,12 +26,12 @@ public class ProxyService {
     public ResponseEntity<String> forward(String method, String path, String body, Map<String, String> headers) {
         RestClient client = restClientBuilder.build();
         String targetUrl;
-        if (path.startsWith("/solicitudes") || path.startsWith("/clientes") || 
-            path.startsWith("/contenedores") || path.startsWith("/tarifas")) {
+        if (path.startsWith("/solicitudes") || path.startsWith("/clientes") ||
+                path.startsWith("/contenedores") || path.startsWith("/tarifas")) {
             targetUrl = baseUrlMsSolicitudes + path;
-        } else if (path.startsWith("/transportistas") || path.startsWith("/camiones") || 
-                   path.startsWith("/depositos") || path.startsWith("/rutas") || 
-                   path.startsWith("/tramos")) {
+        } else if (path.startsWith("/transportistas") || path.startsWith("/camiones") ||
+                path.startsWith("/depositos") || path.startsWith("/rutas") ||
+                path.startsWith("/tramos")) {
             targetUrl = baseUrlMsTransportes + path;
         } else {
             // Por defecto, mandamos a ms-solicitudes

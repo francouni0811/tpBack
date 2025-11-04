@@ -72,6 +72,8 @@ services:
   api-gateway:
     build: ../ApiGateway
     container_name: api-gateway
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
     ports:
       - "8080:8080"
     networks: [ backend-net ]
