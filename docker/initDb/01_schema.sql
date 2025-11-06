@@ -128,7 +128,7 @@ CREATE INDEX idx_rutas_solicitud ON rutas(id_solicitud);
 -- =========================
 CREATE TABLE tramos (
   id_tramo           SERIAL PRIMARY KEY,
-  id_camion          INT NOT NULL REFERENCES camiones(id_camion) ON DELETE RESTRICT,
+  id_camion          INT REFERENCES camiones(id_camion) ON DELETE RESTRICT, -- CAMBIO NECESARIO by FACU
   id_ruta            INT NOT NULL REFERENCES rutas(id_ruta) ON DELETE CASCADE,
   nro_orden          NUMERIC(6,0) NOT NULL,
 

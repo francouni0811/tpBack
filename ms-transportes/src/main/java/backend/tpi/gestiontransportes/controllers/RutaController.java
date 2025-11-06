@@ -10,8 +10,11 @@ import org.springframework.web.bind.annotation.*;
 import backend.tpi.gestiontransportes.DTOS.SolicitudDestinoOrigenDTO;
 import backend.tpi.gestiontransportes.clients.SolicitudesClient;
 import backend.tpi.gestiontransportes.domain.Ruta;
+import backend.tpi.gestiontransportes.domain.Tramo;
 import backend.tpi.gestiontransportes.services.RutaService;
+import backend.tpi.gestiontransportes.services.TramoService;
 import jakarta.validation.Valid;
+
 
 @RestController
 @RequestMapping("api/v1/rutas")
@@ -19,10 +22,12 @@ public class RutaController {
 
     private final RutaService rutaService;
     private final SolicitudesClient solicitudesClient;
+    private final TramoService tramoService;
 
-    public RutaController(RutaService rutaService, SolicitudesClient solicitudesClient) {
+    public RutaController(RutaService rutaService, SolicitudesClient solicitudesClient, TramoService tramoService) {
         this.rutaService = rutaService;
         this.solicitudesClient = solicitudesClient;
+        this.tramoService = tramoService;
     }
 
     // GET /api/v1/rutas
@@ -75,5 +80,40 @@ public class RutaController {
         if (listaRutasPosibles.isEmpty()) return ResponseEntity.noContent().build();
         return ResponseEntity.ok(listaRutasPosibles);
     }
+
+    // POST api/v1/rutas/{idSol}/asignar-ruta/{nroOrden}
+    @GetMapping("{idSol}/asignar-ruta/{nroOrden}")  // capaz podria ser un POST pero lo hago GET porque no toma ningun body y es mas facil testearlo desde google
+    public ResponseEntity<Ruta> asignarRuta(@PathVariable("idSol") Integer idSol, 
+                                            @PathVariable("nroOrden") Integer nroOrden) {
+        
+        System.out.println("\n\nTesteando asignasion de rutas posibles\n\n");
+        List<Ruta> listaRutasPosibles = rutaService.generarRutasPosibles(idSol);
+        if (listaRutasPosibles.isEmpty()) return ResponseEntity.noContent().build();
+
+        try {
+            
+            Ruta rutaSelecc = listaRutasPosibles.get(nroOrden);
+            
+            List<Tramo> tramos = rutaSelecc.getTramos();
+
+            rutaService.guardar(rutaSelecc);
+            
+            for (Tramo tramo : tramos) {
+                tramo.setRuta(rutaSelecc);
+                // calcular costo aprox
+                tramoService.guardar(tramo);
+            }
+
+            rutaSelecc.limpiarTramos();
+            return ResponseEntity.ok(rutaSelecc);
+
+        } 
+        catch (IndexOutOfBoundsException e) {
+            System.out.println("\n\n Ese número de orden no existe para esta solicitud");
+            return ResponseEntity.badRequest().build();
+        }
+
+    }
+    
 }
 

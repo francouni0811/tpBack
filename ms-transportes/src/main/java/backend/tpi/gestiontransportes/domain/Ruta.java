@@ -38,5 +38,9 @@ public class Ruta {
         }
         this.tramos.add(tramo);
     }
+
+    public void limpiarTramos() {
+        this.tramos = new ArrayList<>();
+    }
 }
 
