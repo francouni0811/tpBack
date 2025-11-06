@@ -20,7 +20,7 @@ public class Tramo {
     private Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_camion", nullable = false)
+    @JoinColumn(name = "id_camion", nullable = true)
     private Camion camion;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -31,11 +31,11 @@ public class Tramo {
     private Integer nroOrden;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "deposito_origen")
+    @JoinColumn(name = "deposito_origen", nullable = true)
     private Deposito depositoOrigen;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "deposito_destino")
+    @JoinColumn(name = "deposito_destino", nullable = true)
     private Deposito depositoDestino;
 
     @Column(name = "tipo_tramo", length = 40)

@@ -27,7 +27,7 @@ public class GeoService {
 
         // Mostrar respuesta completa para depurar
         System.out.println("📦 Respuesta de Google API:");
-        System.out.println(response.getBody());
+        //System.out.println(response.getBody());
 
         ObjectMapper mapper = new ObjectMapper();
         JsonNode root = mapper.readTree(response.getBody());

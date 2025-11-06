@@ -1,5 +1,8 @@
 package backend.tpi.gestiontransportes.domain;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -25,5 +28,15 @@ public class Ruta {
 
     @Column(name = "cant_depositos")
     private Integer cantDepositos;
+
+    @Transient
+    private List<Tramo> tramos;
+
+    public void agregarTramo(Tramo tramo) {
+        if (this.tramos == null) {
+            this.tramos = new ArrayList<>();
+        }
+        this.tramos.add(tramo);
+    }
 }
 

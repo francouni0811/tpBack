@@ -7,6 +7,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import backend.tpi.gestiontransportes.DTOS.SolicitudDestinoOrigenDTO;
+import backend.tpi.gestiontransportes.clients.SolicitudesClient;
 import backend.tpi.gestiontransportes.domain.Ruta;
 import backend.tpi.gestiontransportes.services.RutaService;
 import jakarta.validation.Valid;
@@ -16,9 +18,11 @@ import jakarta.validation.Valid;
 public class RutaController {
 
     private final RutaService rutaService;
+    private final SolicitudesClient solicitudesClient;
 
-    public RutaController(RutaService rutaService) {
+    public RutaController(RutaService rutaService, SolicitudesClient solicitudesClient) {
         this.rutaService = rutaService;
+        this.solicitudesClient = solicitudesClient;
     }
 
     // GET /api/v1/rutas
@@ -61,6 +65,15 @@ public class RutaController {
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.notFound().build();
+    }
+
+    // GET /api/v1/rutas/{idSol}/rutas-posibles
+    @GetMapping("/{idSol}/rutas-posibles")
+    public ResponseEntity<List<Ruta>> obtenerRutasPosibles(@PathVariable("idSol") Integer idSol) {
+        System.out.println("\n\n Testeando obtener rutas posibles \n\n");
+        List<Ruta> listaRutasPosibles = rutaService.generarRutasPosibles(idSol);
+        if (listaRutasPosibles.isEmpty()) return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(listaRutasPosibles);
     }
 }
 
