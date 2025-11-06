@@ -1,5 +1,6 @@
 package backend.tpi.gestiontransportes.controllers;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -7,7 +8,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import backend.tpi.gestiontransportes.domain.Camion;
 import backend.tpi.gestiontransportes.domain.Tramo;
+import backend.tpi.gestiontransportes.services.CamionService;
 import backend.tpi.gestiontransportes.services.TramoService;
 import jakarta.validation.Valid;
 
@@ -16,9 +19,11 @@ import jakarta.validation.Valid;
 public class TramoController {
 
     private final TramoService tramoService;
+    private final CamionService camionService;
 
-    public TramoController(TramoService tramoService) {
+    public TramoController(TramoService tramoService, CamionService camionService) {
         this.tramoService = tramoService;
+        this.camionService = camionService;
     }
 
     // GET /api/v1/tramos
@@ -62,5 +67,73 @@ public class TramoController {
         }
         return ResponseEntity.notFound().build();
     }
+
+    @GetMapping("{idTramo}/asignar-camion/{idCamion}")
+    public ResponseEntity<Tramo> asignarCamion(@PathVariable("idCamion") Integer idCamion, @PathVariable("idTramo") Integer idTramo) {
+        
+        Optional<Tramo> tramoOpt = tramoService.buscarPorId(idTramo);
+        if (tramoOpt.isEmpty()) { return ResponseEntity.notFound().build(); }
+
+
+        Optional<Camion> camionOpt = camionService.buscarPorId(idCamion);
+        if (camionOpt.isEmpty()) { return ResponseEntity.notFound().build(); }
+
+        Tramo tramoEncontrado = tramoOpt.get();
+        Camion camionEncontrado = camionOpt.get();
+
+        tramoEncontrado.setCamion(camionEncontrado);
+
+        Optional<Tramo> tramoModificado = tramoService.modificar(idTramo, tramoEncontrado);
+
+        return tramoModificado.map(t -> ResponseEntity.status(HttpStatus.OK).body(t))
+                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+    }
+
+    @GetMapping("{idTramo}/inicio")
+    public ResponseEntity<Tramo> asignarInicio(@PathVariable Integer idTramo) {
+
+        Optional<Tramo> tramoOpt = tramoService.buscarPorId(idTramo);
+        if (tramoOpt.isEmpty()) { return ResponseEntity.notFound().build(); }
+
+        Tramo tramoEncontrado = tramoOpt.get();
+
+        // si ya tiene fecha asignada tiramos error
+        if (tramoEncontrado.getFechaHoraInicio() != null) {  return ResponseEntity.badRequest().build();}
+
+        LocalDateTime fechaHoraInicio = LocalDateTime.now();
+
+        tramoEncontrado.setFechaHoraInicio(fechaHoraInicio);
+
+        Optional<Tramo> tramoModificado = tramoService.modificar(idTramo, tramoEncontrado);
+
+        return tramoModificado.map(t -> ResponseEntity.status(HttpStatus.OK).body(t))
+                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+    }
+
+    @GetMapping("{idTramo}/fin")
+    public ResponseEntity<Tramo> asignarFin(@PathVariable Integer idTramo) {
+
+        Optional<Tramo> tramoOpt = tramoService.buscarPorId(idTramo);
+        if (tramoOpt.isEmpty()) { return ResponseEntity.notFound().build(); }
+
+        Tramo tramoEncontrado = tramoOpt.get();
+
+        // si ya tiene fecha asignada tiramos error
+        if (tramoEncontrado.getFechaHoraFin() != null) {  return ResponseEntity.badRequest().build();}
+
+        LocalDateTime fechaHoraFin = LocalDateTime.now();
+
+        tramoEncontrado.setFechaHoraFin(fechaHoraFin);
+
+        /*
+         * TODO: TODO EL CALCULO DE COSTO FINAL
+         */
+
+        Optional<Tramo> tramoModificado = tramoService.modificar(idTramo, tramoEncontrado);
+
+        return tramoModificado.map(t -> ResponseEntity.status(HttpStatus.OK).body(t))
+                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+    }
+
 }
 
