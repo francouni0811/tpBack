@@ -1,5 +1,6 @@
 package backend.tpi.gestiondesolicitudes.services;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -48,6 +49,12 @@ public class TarifaService {
 
     public boolean existe(Integer id) {
         return tarifaRepository.existe(id);
+    }
+
+    public List<Tarifa> buscarTarifasPorRangoVolumen(BigDecimal volumen) {
+        // el mismo volumen se usa para buscar el límite inferior (volMin)
+        // y el límite superior (volMax).
+        return tarifaRepository.findByVolMinLessThanEqualAndVolMaxGreaterThan(volumen, volumen);
     }
 
 }

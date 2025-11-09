@@ -1,5 +1,6 @@
 package backend.tpi.gestiontransportes.domain;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,6 +29,13 @@ public class Ruta {
 
     @Column(name = "cant_depositos")
     private Integer cantDepositos;
+
+    // aunque son atributos calculados, simplifican calculos futuros
+    @Column(name = "costo_aprox", precision = 14, scale = 2)
+    private BigDecimal costoAprox;
+
+    @Column(name = "costo_real", precision = 14, scale = 2)
+    private BigDecimal costoReal;
 
     @Transient
     private List<Tramo> tramos;

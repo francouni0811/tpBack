@@ -55,5 +55,9 @@ public class Tramo {
 
     @Column(name = "fechaHora_fin")
     private LocalDateTime fechaHoraFin;
+
+    // cambio para calcular mejor los costos
+    @Column(name = "distancia_km")
+    private BigDecimal distanciaKm;
 }
 

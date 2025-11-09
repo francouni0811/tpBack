@@ -1,5 +1,8 @@
 package backend.tpi.gestiontransportes.DTOS;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,4 +22,16 @@ public class SolicitudDestinoOrigenDTO {
     private String destinoDireccion;
     private Double destinoLatitud;
     private Double destinoLongitud;
+
+    // Identificador del Contenedor (referencia)
+    private Integer idContenedor;
+
+    // Campo auxiliar para capturar el objeto "contenedor" anidado
+    @JsonProperty("contenedor")
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    private void unpackContenedor(java.util.Map<String, Object> contenedor) {
+        if (contenedor != null && contenedor.get("id") != null) {
+            this.idContenedor = (Integer) contenedor.get("id");
+        }
+    }
 }

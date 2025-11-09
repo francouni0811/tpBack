@@ -1,6 +1,7 @@
 package backend.tpi.gestiondesolicitudes.controllers;
 
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import backend.tpi.gestiondesolicitudes.domain.Tarifa;
@@ -31,16 +33,27 @@ public class TarifaController {
     }
 
     // GET /api/v1/tarifas
+    // GET /api/v1/tarifas?volumen=100 deberia devolver la tarifa para la cual el volumen esté dentro de su rango
     @GetMapping
-    public ResponseEntity<List<Tarifa>> obtenerTodasTarifas() {
+    public ResponseEntity<List<Tarifa>> obtenerTodasTarifas(@RequestParam(required = false) BigDecimal volumen) {
 
-        List<Tarifa> tarifasEncontradas = tarifaService.listarTodos();
+        List<Tarifa> tarifasEncontradas;
 
-        if (tarifasEncontradas.isEmpty()) {
-            return ResponseEntity.noContent().build(); // 204
+        if (volumen != null) {
+            // Si el query parameter 'volumen' está presente, filtramos por rango
+            System.out.println("Buscando tarifas para el volumen: " + volumen);
+            tarifasEncontradas = tarifaService.buscarTarifasPorRangoVolumen(volumen);
+        } else {
+            // Si no hay query parameter, devolvemos todas las tarifas
+            System.out.println("Listando todas las tarifas.");
+            tarifasEncontradas = tarifaService.listarTodos();
         }
 
-        return ResponseEntity.ok(tarifasEncontradas);
+        if (tarifasEncontradas.isEmpty()) {
+            return ResponseEntity.noContent().build(); // HTTP 204 No Content
+        }
+
+        return ResponseEntity.ok(tarifasEncontradas); // HTTP 200 OK
     }
 
     // GET /api/v1/tarifas/{id}

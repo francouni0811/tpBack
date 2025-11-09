@@ -119,7 +119,10 @@ CREATE TABLE rutas (
   id_ruta         SERIAL PRIMARY KEY,
   id_solicitud    INT NOT NULL REFERENCES solicitudes(id_solicitud) ON DELETE CASCADE,
   cant_tramos     NUMERIC(6,0),
-  cant_depositos  NUMERIC(6,0)
+  cant_depositos  NUMERIC(6,0),
+  -- FACU recomienda agregar esto:
+  costo_aprox        NUMERIC(14,2),
+  costo_real         NUMERIC(14,2), -- aunque son atributos calculados, nos simplifican un monton de cosas
 );
 CREATE INDEX idx_rutas_solicitud ON rutas(id_solicitud);
 
@@ -140,7 +143,9 @@ CREATE TABLE tramos (
   costo_aprox        NUMERIC(14,2),
   costo_real         NUMERIC(14,2),
   fechaHora_inicio   TIMESTAMP,
-  fechaHora_fin      TIMESTAMP
+  fechaHora_fin      TIMESTAMP,
+  -- FACU recomienda agregar esto:
+  distancia_km       NUMERIC(14,2)
 );
 CREATE INDEX idx_tramos_ruta      ON tramos(id_ruta);
 CREATE INDEX idx_tramos_camion    ON tramos(id_camion);
