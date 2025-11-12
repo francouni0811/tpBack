@@ -34,6 +34,7 @@ public class RutaService {
     private final ContenedoresClient contenedoresClient;
     private final TarifasClient tarifasClient;
     private final CamionService camionService;
+    private final TramoService tramoService;
 
     public RutaService(RutaRepository rutaRepository, 
                         SolicitudesClient solicitudesClient, 
@@ -41,7 +42,8 @@ public class RutaService {
                         DepositoService depositoService, 
                         ContenedoresClient contenedoresClient,
                         TarifasClient tarifasClient,
-                        CamionService camionService) {
+                        CamionService camionService,
+                        TramoService tramoService) {
         this.rutaRepository = rutaRepository;
         this.solicitudesClient = solicitudesClient;
         this.geoService = geoService;
@@ -49,6 +51,7 @@ public class RutaService {
         this.contenedoresClient = contenedoresClient;
         this.tarifasClient = tarifasClient;
         this.camionService = camionService;
+        this.tramoService = tramoService;
     }
 
     public List<Ruta> listarTodos() { return rutaRepository.listarTodos(); }
@@ -431,5 +434,18 @@ public class RutaService {
         );
 
         return promedio;
+    }
+
+    public Ruta calcularCostoReal(Ruta ruta) {
+        // traer todos los tramos
+        List<Tramo> tramos = tramoService.buscarPorRuta(ruta.getId());
+        // sumar los costos reales
+        BigDecimal totalCostoReal = tramos.stream()
+            .map(tramo -> tramo.getCostoReal() != null ? tramo.getCostoReal() : BigDecimal.ZERO)
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        // asignar el total
+        ruta.setCostoReal(totalCostoReal);
+        return ruta;
     }
 }
