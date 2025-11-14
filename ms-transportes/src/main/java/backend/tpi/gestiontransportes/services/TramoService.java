@@ -15,6 +15,7 @@ import backend.tpi.gestiontransportes.DTOS.TarifaDTO;
 import backend.tpi.gestiontransportes.clients.ContenedoresClient;
 import backend.tpi.gestiontransportes.clients.SolicitudesClient;
 import backend.tpi.gestiontransportes.clients.TarifasClient;
+import backend.tpi.gestiontransportes.domain.Deposito;
 import backend.tpi.gestiontransportes.domain.Tramo;
 import backend.tpi.gestiontransportes.repositorios.TramoRepository;
 
@@ -82,7 +83,12 @@ public class TramoService {
             cantHoras = BigDecimal.valueOf(ChronoUnit.HOURS.between(fechaFinTramoAnterior, fechaInicioActual) + 1); // corrijo con +1 por si el camion se quedó 0 horas
         }
         // obtener el costo de estadia por hora del deposito de origen del tramo actual
-        BigDecimal costoEstadiaHora = tramo.getDepositoOrigen().getCostoEstadiaHora();
+        // aunque si es el primer tramo, no tiene deposito de origen
+        Deposito depositoOrigenObtenido = tramo.getDepositoOrigen();
+        BigDecimal costoEstadiaHora = BigDecimal.ZERO;
+        if (depositoOrigenObtenido != null) {
+            costoEstadiaHora = depositoOrigenObtenido.getCostoEstadiaHora();
+        }
 
         /*
          *  el tramo tiene una ruta, la ruta una solicitud, la solicitud un contenedor, el contenedor un volumen
