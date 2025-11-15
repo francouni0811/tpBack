@@ -34,4 +34,18 @@ public class SolicitudesClient {
                 .body(SolicitudDestinoOrigenDTO.class);
     }
 
+    public void marcarSolicitudEntregada(Integer id) {
+        this.restClient.patch()
+                // URI: /solicitudes/{id}/entregada
+                .uri("/solicitudes/{id}/entregada", id)
+                .retrieve()
+                // Manejo de error 404 explícito: si no se encuentra la solicitud
+                .onStatus(status -> status.value() == HttpStatus.NOT_FOUND.value(), (request, response) -> {
+                    throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No se pudo marcar la solicitud con ID " + id + " como entregada: no fue encontrada.");
+                })
+                // Usamos toBodilessEntity() para ejecutar la llamada y confirmar el éxito (sin necesidad de deserializar el cuerpo de la respuesta)
+                .toBodilessEntity();
+
+    }
+
 }

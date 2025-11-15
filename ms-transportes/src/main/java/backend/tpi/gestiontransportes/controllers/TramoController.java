@@ -95,7 +95,7 @@ public class TramoController {
                  .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
-    @GetMapping("{idTramo}/inicio")
+    @PatchMapping("{idTramo}/inicio")
     public ResponseEntity<Tramo> asignarInicio(@PathVariable Integer idTramo) {
 
         Optional<Tramo> tramoOpt = tramoService.buscarPorId(idTramo);
@@ -129,7 +129,7 @@ public class TramoController {
                  .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
-    @GetMapping("{idTramo}/fin")
+    @PatchMapping("{idTramo}/fin")
     public ResponseEntity<Tramo> asignarFin(@PathVariable Integer idTramo) {
 
         Optional<Tramo> tramoOpt = tramoService.buscarPorId(idTramo);
@@ -161,9 +161,16 @@ public class TramoController {
             Ruta rutaEncontrada = tramoEncontrado.getRuta();
             Ruta rutaFinalizada = rutaService.calcularCostoReal(rutaEncontrada);
             rutaService.modificar(rutaEncontrada.getId(), rutaFinalizada);
+
+            // ademas si es el ultimo tramo de la ruta, dembemos:
+            // actualizar la solicitud a entregada
+            Integer idSolicitud = rutaEncontrada.getIdSolicitud();
+            this.tramoService.marcarSolicitudEntregada(idSolicitud);
         }
 
         Optional<Tramo> tramoModificado = tramoService.modificar(idTramo, tramoActualizado);
+
+
 
         return tramoModificado.map(t -> ResponseEntity.status(HttpStatus.OK).body(t))
                  .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());

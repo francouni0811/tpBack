@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -29,15 +30,6 @@ public class SolicitudController {
     public SolicitudController(SolicitudService solicitudService) {
         this.solicitudService = solicitudService;
     }
-
-    /*
-     * TODO: ENDPOINTS ESPECIFICOS DE SOLICITUDES
-     * 
-     * 
-     * 
-     * 
-     * 
-     */
 
     // GET /api/v1/solicitudes
     @GetMapping
@@ -127,6 +119,25 @@ public class SolicitudController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
+
+    // este endpoint solo debería poder ser accedido por el solicitudes client desde ms-transporte
+    // es un endpoint que nos permite marcar el estado de una solicitud como entregada cuando el ultimo tramo de su ruta correspondiente es marcado como terminado
+    // PATCH /solicitudes/{idSol}/entregada
+    @PatchMapping("{id}/entregada")
+    public ResponseEntity<Solicitud> marcarEntregada(@PathVariable("id") Integer id) {
+        Optional<Solicitud> solicitudEncontrada = solicitudService.buscarPorId(id);
+        if (solicitudEncontrada.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+        Solicitud solicitud = solicitudEncontrada.get();
+        
+        solicitud.setEstado("Entregada");
+
+        Optional<Solicitud> modificada = solicitudService.modificar(id, solicitud);
+        return modificada.map(c -> ResponseEntity.status(HttpStatus.OK).body(c))
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+    }
+
 
     // GET rutas posibles
     // PUT asignar posible ruta

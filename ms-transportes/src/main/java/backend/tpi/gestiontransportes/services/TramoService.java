@@ -125,5 +125,9 @@ public class TramoService {
         return tramo;
 
     }
+
+    public void marcarSolicitudEntregada(Integer id) {
+        this.solicitudesClient.marcarSolicitudEntregada(id);
+    }
 }
 

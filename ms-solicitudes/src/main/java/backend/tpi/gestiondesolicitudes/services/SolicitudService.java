@@ -1,6 +1,7 @@
 package backend.tpi.gestiondesolicitudes.services;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -99,6 +100,7 @@ public class SolicitudService {
         nuevaSolicitud.setCostoFinal(BigDecimal.ZERO);
         nuevaSolicitud.setTiempoEstimado(null);
         nuevaSolicitud.setTiempoFinal(null);
+        nuevaSolicitud.setFechaSolicitud(LocalDateTime.now());
 
         // hay que tomar origen lat y long, y destino lat y long y mandar a crear una
         // ruta al ms-transporte con restclient
