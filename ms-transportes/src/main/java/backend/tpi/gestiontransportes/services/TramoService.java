@@ -7,7 +7,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import org.springframework.context.annotation.Lazy;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import backend.tpi.gestiontransportes.DTOS.ContenedorDTO;
 import backend.tpi.gestiontransportes.DTOS.SolicitudDestinoOrigenDTO;
@@ -15,7 +18,9 @@ import backend.tpi.gestiontransportes.DTOS.TarifaDTO;
 import backend.tpi.gestiontransportes.clients.ContenedoresClient;
 import backend.tpi.gestiontransportes.clients.SolicitudesClient;
 import backend.tpi.gestiontransportes.clients.TarifasClient;
+import backend.tpi.gestiontransportes.domain.Camion;
 import backend.tpi.gestiontransportes.domain.Deposito;
+import backend.tpi.gestiontransportes.domain.Ruta;
 import backend.tpi.gestiontransportes.domain.Tramo;
 import backend.tpi.gestiontransportes.repositorios.TramoRepository;
 
@@ -26,33 +31,137 @@ public class TramoService {
     private final SolicitudesClient solicitudesClient;
     private final ContenedoresClient contenedoresClient;
     private final TarifasClient tarifasClient;
+    private final CamionService camionService;
+    private final RutaService rutaService;
 
-    public TramoService(TramoRepository tramoRepository, 
-                        SolicitudesClient solicitudesClient, 
-                        ContenedoresClient contenedoresClient,
-                        TarifasClient tarifasClient) {
+    public TramoService(TramoRepository tramoRepository,
+            SolicitudesClient solicitudesClient,
+            ContenedoresClient contenedoresClient,
+            TarifasClient tarifasClient,
+            CamionService camionService,
+            @Lazy RutaService rutaService) {
         this.tramoRepository = tramoRepository;
         this.solicitudesClient = solicitudesClient;
         this.contenedoresClient = contenedoresClient;
         this.tarifasClient = tarifasClient;
+        this.camionService = camionService;
+        this.rutaService = rutaService;
     }
 
-    public List<Tramo> listarTodos() { return tramoRepository.listarTodos(); }
+    public List<Tramo> listarTodos() {
+        return tramoRepository.listarTodos();
+    }
 
-    public Optional<Tramo> buscarPorId(Integer id) { return tramoRepository.buscarPorId(id); }
+    public Optional<Tramo> buscarPorId(Integer id) {
+        return tramoRepository.buscarPorId(id);
+    }
 
-    public Stream<Tramo> listarStream() { return tramoRepository.listarStream(); }
+    public Stream<Tramo> listarStream() {
+        return tramoRepository.listarStream();
+    }
 
-    public Tramo guardar(Tramo nuevo) { return tramoRepository.guardar(nuevo); }
+    public Tramo guardar(Tramo nuevo) {
+        return tramoRepository.guardar(nuevo);
+    }
 
-    public void eliminarPorId(Integer id) { tramoRepository.eliminarPorId(id); }
+    public void eliminarPorId(Integer id) {
+        tramoRepository.eliminarPorId(id);
+    }
 
-    public Optional<Tramo> modificar(Integer id, Tramo nuevo) { return tramoRepository.modificar(id, nuevo); }
+    public Optional<Tramo> modificar(Integer id, Tramo nuevo) {
+        return tramoRepository.modificar(id, nuevo);
+    }
 
-    public boolean existe(Integer id) { return tramoRepository.existe(id); }
+    public boolean existe(Integer id) {
+        return tramoRepository.existe(id);
+    }
 
     public List<Tramo> buscarPorRuta(Integer idRuta) {
         return tramoRepository.findByRuta_Id(idRuta);
+    }
+
+    public Tramo asignarCamion(Integer idTramo, Integer idCamion) {
+        Tramo tramo = buscarPorId(idTramo)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Tramo no encontrado"));
+
+        Camion camion = camionService.buscarPorId(idCamion)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Camion no encontrado"));
+
+        if (!camion.getEstado().equalsIgnoreCase("libre")) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El camion no esta libre");
+        }
+        tramo.setCamion(camion);
+
+        return modificar(idTramo, tramo)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No se pudo actualizar el tramo"));
+    }
+
+    public Tramo iniciarTramo(Integer idTramo) {
+        Tramo tramo = buscarPorId(idTramo)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Tramo no encontrado"));
+
+        if (tramo.getFechaHoraInicio() != null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El tramo ya fue iniciado");
+        }
+
+        if (tramo.getCamion() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El tramo no tiene camion asignado");
+        }
+
+        if (tramo.getNroOrden() != 0) {
+            int idRuta = tramo.getRuta().getId();
+            List<Tramo> tramosRuta = buscarPorRuta(idRuta);
+            Tramo tramoAnterior = tramosRuta.get(tramo.getNroOrden() - 1);
+            if (tramoAnterior.getFechaHoraFin() == null) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El tramo anterior aun no finalizo");
+            }
+        }
+
+        tramo.setFechaHoraInicio(LocalDateTime.now());
+        tramo.setEstado("comenzado");
+
+        tramo.getCamion().setEstado("EnTransito");
+        camionService.modificar(tramo.getCamion().getId(), tramo.getCamion());
+
+        if (tramo.getNroOrden() == 0) {
+            Ruta ruta = tramo.getRuta();
+            Integer idSolicitud = ruta.getIdSolicitud();
+            marcarSolicitudEnTransito(idSolicitud);
+        }
+
+        return modificar(idTramo, tramo)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No se pudo actualizar el tramo"));
+    }
+
+    public Tramo finalizarTramo(Integer idTramo) {
+        Tramo tramo = buscarPorId(idTramo)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Tramo no encontrado"));
+
+        if (tramo.getFechaHoraFin() != null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El tramo ya fue finalizado");
+        }
+
+        if (tramo.getFechaHoraInicio() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El tramo aun no fue iniciado");
+        }
+
+        tramo.setFechaHoraFin(LocalDateTime.now());
+        tramo.setEstado("finalizado");
+
+        tramo.getCamion().setEstado("libre");
+        camionService.modificar(tramo.getCamion().getId(), tramo.getCamion());
+
+        Tramo tramoActualizado = calcularCostoReal(tramo);
+
+        if (tramo.getDepositoDestino() == null) {
+            Ruta ruta = tramo.getRuta();
+            Ruta rutaFinalizada = rutaService.calcularCostoReal(ruta);
+            rutaService.modificar(ruta.getId(), rutaFinalizada);
+            marcarSolicitudEntregada(ruta.getIdSolicitud());
+        }
+
+        return modificar(idTramo, tramoActualizado)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No se pudo actualizar el tramo"));
     }
 
     public Tramo calcularCostoReal(Tramo tramo) {
@@ -61,26 +170,39 @@ public class TramoService {
          * obtener distancia en km
          * obtener costoBaseTrasladoXKm del camion del tramo
          * obtener consumoXKm del camion del tramo
-         * calcular dias de estadia (tomar tramo anterior a este si este no es el primero, 
-         *      quedate con la fechaFin del anterior y restala a tu fecha inicio, de eso quedate con la cantidad de HORAS,
-         *      obtener el deposito de Origen y multiplicar esa cantDeDias * costoEstadia del depositoOrigen)
+         * calcular dias de estadia (tomar tramo anterior a este si este no es el
+         * primero,
+         * quedate con la fechaFin del anterior y restala a tu fecha inicio, de eso
+         * quedate con la cantidad de HORAS,
+         * obtener el deposito de Origen y multiplicar esa cantDeDias * costoEstadia del
+         * depositoOrigen)
          */
 
         BigDecimal distanciaKM_tramo = tramo.getDistanciaKm();
         BigDecimal costoBaseTrasladoXKM_camion = tramo.getCamion().getCostoBaseTrasladoXKm();
         BigDecimal consumoXKM_camion = tramo.getCamion().getConsumoXKm();
 
-        
         // asumo que este es el primer tramo de su ruta
         BigDecimal cantHoras = BigDecimal.ZERO;
-        //si no es el primer tramo, calculo la cant de horas que paró en el depósito (le sumo +1 a la cant de horas por cuestiones de testing)
+        // si no es el primer tramo, calculo la cant de horas que paró en el depósito
+        // (le sumo +1 a la cant de horas por cuestiones de testing)
         if (tramo.getNroOrden() != 0) {
             int idRuta = tramo.getRuta().getId();
             List<Tramo> tramosRuta = buscarPorRuta(idRuta);
             Tramo tramoAnterior = tramosRuta.get(tramo.getNroOrden() - 1);
             LocalDateTime fechaFinTramoAnterior = tramoAnterior.getFechaHoraFin();
             LocalDateTime fechaInicioActual = tramo.getFechaHoraInicio();
-            cantHoras = BigDecimal.valueOf(ChronoUnit.HOURS.between(fechaFinTramoAnterior, fechaInicioActual) + 1); // corrijo con +1 por si el camion se quedó 0 horas
+            cantHoras = BigDecimal.valueOf(ChronoUnit.HOURS.between(fechaFinTramoAnterior, fechaInicioActual) + 1); // corrijo
+                                                                                                                    // con
+                                                                                                                    // +1
+                                                                                                                    // por
+                                                                                                                    // si
+                                                                                                                    // el
+                                                                                                                    // camion
+                                                                                                                    // se
+                                                                                                                    // quedó
+                                                                                                                    // 0
+                                                                                                                    // horas
         }
         // obtener el costo de estadia por hora del deposito de origen del tramo actual
         // aunque si es el primer tramo, no tiene deposito de origen
@@ -91,7 +213,8 @@ public class TramoService {
         }
 
         /*
-         *  el tramo tiene una ruta, la ruta una solicitud, la solicitud un contenedor, el contenedor un volumen
+         * el tramo tiene una ruta, la ruta una solicitud, la solicitud un contenedor,
+         * el contenedor un volumen
          * 
          * obtener tarifa para ese volumen : == (
          * 
@@ -116,10 +239,10 @@ public class TramoService {
         BigDecimal costosCombustible = valorCombustible.multiply((distanciaKM_tramo.multiply(consumoXKM_camion)));
         // costos de estadia
         BigDecimal costosEstadia = cantHoras.multiply(costoEstadiaHora);
-        //sumamos todo
+        // sumamos todo
         BigDecimal costoReal = costosTraslado.add(costosCombustible.add(costosEstadia));
 
-        //asignamos el costoReal
+        // asignamos el costoReal
         tramo.setCostoReal(costoReal);
 
         return tramo;
@@ -129,5 +252,8 @@ public class TramoService {
     public void marcarSolicitudEntregada(Integer id) {
         this.solicitudesClient.marcarSolicitudEntregada(id);
     }
-}
 
+    public void marcarSolicitudEnTransito(Integer id) {
+        this.solicitudesClient.marcarSolicitudEnTransito(id);
+    }
+}

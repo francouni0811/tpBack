@@ -20,15 +20,17 @@ public class SolicitudesClient {
     }
 
     public SolicitudDestinoOrigenDTO obtenerSolicitudPorId(Integer id) {
-        
+
         return this.restClient.get()
-                // La URI es solo /{id} porque el ID se pasa como variable de ruta en el controller
-                .uri("/solicitudes/{id}", id) 
+                // La URI es solo /{id} porque el ID se pasa como variable de ruta en el
+                // controller
+                .uri("/solicitudes/{id}", id)
                 .retrieve()
                 // Manejo de error 404 explícito: si no se encuentra la solicitud
                 .onStatus(status -> status.value() == HttpStatus.NOT_FOUND.value(), (request, response) -> {
                     // Lanzar una excepción de Spring que se mapeará a un 404 si es necesario
-                    throw new ResponseStatusException(HttpStatus.NOT_FOUND, "La solicitud con ID " + id + " no fue encontrada.");
+                    throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                            "La solicitud con ID " + id + " no fue encontrada.");
                 })
                 // Mapear la respuesta JSON al DTO
                 .body(SolicitudDestinoOrigenDTO.class);
@@ -41,11 +43,43 @@ public class SolicitudesClient {
                 .retrieve()
                 // Manejo de error 404 explícito: si no se encuentra la solicitud
                 .onStatus(status -> status.value() == HttpStatus.NOT_FOUND.value(), (request, response) -> {
-                    throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No se pudo marcar la solicitud con ID " + id + " como entregada: no fue encontrada.");
+                    throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                            "No se pudo marcar la solicitud con ID " + id + " como entregada: no fue encontrada.");
                 })
-                // Usamos toBodilessEntity() para ejecutar la llamada y confirmar el éxito (sin necesidad de deserializar el cuerpo de la respuesta)
+                // Usamos toBodilessEntity() para ejecutar la llamada y confirmar el éxito (sin
+                // necesidad de deserializar el cuerpo de la respuesta)
                 .toBodilessEntity();
 
+    }
+
+    public void marcarSolicitudProgramada(Integer id) {
+        this.restClient.patch()
+                // URI: /solicitudes/{id}/entregada
+                .uri("/solicitudes/{id}/programada", id)
+                .retrieve()
+                // Manejo de error 404 explícito: si no se encuentra la solicitud
+                .onStatus(status -> status.value() == HttpStatus.NOT_FOUND.value(), (request, response) -> {
+                    throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                            "No se pudo marcar la solicitud con ID " + id + " como programada: no fue encontrada.");
+                })
+                // Usamos toBodilessEntity() para ejecutar la llamada y confirmar el éxito (sin
+                // necesidad de deserializar el cuerpo de la respuesta)
+                .toBodilessEntity();
+    }
+
+    public void marcarSolicitudEnTransito(Integer id) {
+        this.restClient.patch()
+                // URI: /solicitudes/{id}/entregada
+                .uri("/solicitudes/{id}/en-transito", id)
+                .retrieve()
+                // Manejo de error 404 explícito: si no se encuentra la solicitud
+                .onStatus(status -> status.value() == HttpStatus.NOT_FOUND.value(), (request, response) -> {
+                    throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                            "No se pudo marcar la solicitud con ID " + id + " como EnTransito: no fue encontrada.");
+                })
+                // Usamos toBodilessEntity() para ejecutar la llamada y confirmar el éxito (sin
+                // necesidad de deserializar el cuerpo de la respuesta)
+                .toBodilessEntity();
     }
 
 }

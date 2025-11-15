@@ -25,7 +25,8 @@ public class CamionController {
     @GetMapping
     public ResponseEntity<List<Camion>> obtenerTodos() {
         List<Camion> lista = camionService.listarTodos();
-        if (lista.isEmpty()) return ResponseEntity.noContent().build();
+        if (lista.isEmpty())
+            return ResponseEntity.noContent().build();
         return ResponseEntity.ok(lista);
     }
 
@@ -47,10 +48,10 @@ public class CamionController {
     // PUT /api/v1/camiones/{id}
     @PutMapping("/{id}")
     public ResponseEntity<Camion> actualizar(@PathVariable("id") Integer id,
-                                             @Valid @RequestBody Camion actualizado) {
+            @Valid @RequestBody Camion actualizado) {
         Optional<Camion> res = camionService.modificar(id, actualizado);
         return res.map(c -> ResponseEntity.status(HttpStatus.OK).body(c))
-                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
     // DELETE /api/v1/camiones/{id}
@@ -62,5 +63,5 @@ public class CamionController {
         }
         return ResponseEntity.notFound().build();
     }
-}
 
+}

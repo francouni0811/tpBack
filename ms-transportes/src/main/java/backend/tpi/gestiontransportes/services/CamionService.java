@@ -18,18 +18,36 @@ public class CamionService {
         this.camionRepository = camionRepository;
     }
 
-    public List<Camion> listarTodos() { return camionRepository.listarTodos(); }
+    public List<Camion> listarTodos() {
+        return camionRepository.listarTodos();
+    }
 
-    public Optional<Camion> buscarPorId(Integer id) { return camionRepository.buscarPorId(id); }
+    public Optional<Camion> buscarPorId(Integer id) {
+        return camionRepository.buscarPorId(id);
+    }
 
-    public Stream<Camion> listarStream() { return camionRepository.listarStream(); }
+    public Stream<Camion> listarStream() {
+        return camionRepository.listarStream();
+    }
 
-    public Camion guardar(Camion nuevo) { return camionRepository.guardar(nuevo); }
+    public Camion guardar(Camion nuevo) {
+        if (nuevo.getEstado() == null || !nuevo.getEstado().equalsIgnoreCase("libre")) {
+            nuevo.setEstado("libre");
+        }
+        nuevo.setEstado("libre");
 
-    public void eliminarPorId(Integer id) { camionRepository.eliminarPorId(id); }
+        return camionRepository.guardar(nuevo);
+    }
 
-    public Optional<Camion> modificar(Integer id, Camion nuevo) { return camionRepository.modificar(id, nuevo); }
+    public void eliminarPorId(Integer id) {
+        camionRepository.eliminarPorId(id);
+    }
 
-    public boolean existe(Integer id) { return camionRepository.existe(id); }
+    public Optional<Camion> modificar(Integer id, Camion nuevo) {
+        return camionRepository.modificar(id, nuevo);
+    }
+
+    public boolean existe(Integer id) {
+        return camionRepository.existe(id);
+    }
 }
-
