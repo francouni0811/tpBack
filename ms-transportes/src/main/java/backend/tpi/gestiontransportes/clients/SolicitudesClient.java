@@ -1,5 +1,8 @@
 package backend.tpi.gestiontransportes.clients;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -81,5 +84,39 @@ public class SolicitudesClient {
                 // necesidad de deserializar el cuerpo de la respuesta)
                 .toBodilessEntity();
     }
+
+    public void actualizarTiempoEstimadoHs(Integer id, Integer tiempoEstimadoHs) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("tiempoEstimadoHs", tiempoEstimadoHs);
+
+        this.restClient.patch()
+                .uri("/solicitudes/{id}", id)
+                .body(body)
+                .retrieve()
+                .onStatus(status -> status.value() == HttpStatus.NOT_FOUND.value(),
+                        (request, response) -> {
+                            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                                    "No se encontró la solicitud con ID " + id);
+                        })
+                .toBodilessEntity();
+    }
+
+    public void actualizarTiempoFinalHs(Integer id, Integer tiempoFinalHs) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("tiempoFinalHs", tiempoFinalHs);
+
+        this.restClient.patch()
+                .uri("/solicitudes/{id}", id)
+                .body(body)
+                .retrieve()
+                .onStatus(status -> status.value() == HttpStatus.NOT_FOUND.value(),
+                        (request, response) -> {
+                            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                                    "No se encontró la solicitud con ID " + id);
+                        })
+                .toBodilessEntity();
+    }
+
+    
 
 }

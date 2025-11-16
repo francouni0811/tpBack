@@ -93,9 +93,9 @@ CREATE TABLE solicitudes (
   id_tarifa         INT NOT NULL REFERENCES tarifas(id_tarifa) ON DELETE RESTRICT,
 
   costo_estimado    NUMERIC(14,2),
-  tiempo_estimado   TIMESTAMP,
+  tiempo_estimado_hs   NUMERIC(6,0),     --  calculo de tiempo
   costo_final       NUMERIC(14,2),
-  tiempo_final      TIMESTAMP,
+  tiempo_final_hs      NUMERIC(6,0),     -- calculo de tiempo
   estado            VARCHAR(40),
 
   origen_direccion  VARCHAR(200),
@@ -145,7 +145,9 @@ CREATE TABLE tramos (
   fechaHora_inicio   TIMESTAMP,
   fechaHora_fin      TIMESTAMP,
   -- FACU recomienda agregar esto:
-  distancia_km       NUMERIC(14,2)
+  distancia_km       NUMERIC(14,2),
+  tiempo_estimado_hs NUMERIC(6,0),    --  calculo de tiempo
+  tiempo_real_hs     NUMERIC(6,0)     --  calculo de tiempo
 );
 CREATE INDEX idx_tramos_ruta      ON tramos(id_ruta);
 CREATE INDEX idx_tramos_camion    ON tramos(id_camion);

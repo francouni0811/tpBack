@@ -101,17 +101,19 @@ public class RutaController {
 
             rutaService.guardar(rutaSelecc);
 
+            // sumamos las duraciones estimadasen hs para actualizar la solicitud
+            Integer acum_hs = 0;
             for (Tramo tramo : tramos) {
                 tramo.setRuta(rutaSelecc);
-                // calcular costo aprox
                 tramoService.guardar(tramo);
+                acum_hs += tramo.getTiempoEstimadoHs();
             }
 
             rutaService.marcarSolicitudProgramada(rutaSelecc.getIdSolicitud());
+            rutaService.actualizarTiempoEstimadoHs(idSol, acum_hs);
 
-            // agregar aca la carga del estado de solicitud
 
-            rutaSelecc.limpiarTramos();
+            rutaSelecc.limpiarTramos(); // para que se muestre lindo en pantalla
             return ResponseEntity.ok(rutaSelecc);
 
         } catch (IndexOutOfBoundsException e) {

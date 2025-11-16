@@ -49,14 +49,16 @@ public class Solicitud {
     @Column(name = "costo_estimado")
     private BigDecimal costoEstimado;
 
-    @Column(name = "tiempo_estimado")
-    private LocalDateTime tiempoEstimado;
+    // uso integer en cantidad de horas  !!!!!!!!!!! cambiado nombre del atributo: tiempoEstimado -> tiempoEstimadoHs
+    @Column(name = "tiempo_estimado_hs")
+    private Integer tiempoEstimadoHs;
 
     @Column(name = "costo_final")
     private BigDecimal costoFinal;
 
-    @Column(name = "tiempo_final")
-    private LocalDateTime tiempoFinal;
+    // uso integer en cantidad de horas  !!!!!!!!!!! cambiado nombre del atributo: tiempoFinal -> tiempoFinalHs
+    @Column(name = "tiempo_final_hs")
+    private Integer tiempoFinalHs;
 
     @Column(name = "estado")
     private String estado;

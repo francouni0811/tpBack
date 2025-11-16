@@ -98,8 +98,8 @@ public class SolicitudService {
         nuevaSolicitud.setEstado("borrador");
         nuevaSolicitud.setCostoEstimado(BigDecimal.ZERO);
         nuevaSolicitud.setCostoFinal(BigDecimal.ZERO);
-        nuevaSolicitud.setTiempoEstimado(null);
-        nuevaSolicitud.setTiempoFinal(null);
+        nuevaSolicitud.setTiempoEstimadoHs(null);
+        nuevaSolicitud.setTiempoFinalHs(null);
         nuevaSolicitud.setFechaSolicitud(LocalDateTime.now());
 
         // hay que tomar origen lat y long, y destino lat y long y mandar a crear una

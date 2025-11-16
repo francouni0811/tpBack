@@ -171,7 +171,39 @@ public class SolicitudController {
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
-    // GET rutas posibles
-    // PUT asignar posible ruta
+    // patch para modificar atributos especificaos de una solicitud
+    @PatchMapping("{id}")
+    public ResponseEntity<Solicitud> actualizarParcial(@PathVariable("id") Integer id, 
+                                                        @RequestBody Map<String, Object> cambios) {
+
+        Optional<Solicitud> solicitudOpt = solicitudService.buscarPorId(id);
+        
+        if (solicitudOpt.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        Solicitud solicitud = solicitudOpt.get();
+
+        if (cambios.containsKey("tiempoEstimadoHs")) {
+            solicitud.setTiempoEstimadoHs((Integer) cambios.get("tiempoEstimadoHs"));
+        }
+
+        if (cambios.containsKey("tiempoFinalHs")) {
+            solicitud.setTiempoFinalHs((Integer) cambios.get("tiempoFinalHs"));
+        }
+
+        if (cambios.containsKey("costoEstimado")) {
+            solicitud.setCostoEstimado(new BigDecimal(cambios.get("costoEstimado").toString()));
+        }
+
+        if (cambios.containsKey("costoFinal")) {
+            solicitud.setCostoFinal(new BigDecimal(cambios.get("costoFinal").toString()));
+        }
+
+        Optional<Solicitud> modificada = solicitudService.modificar(id, solicitud);
+        return modificada.map(c -> ResponseEntity.status(HttpStatus.OK).body(c))
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+    }
+
 
 }

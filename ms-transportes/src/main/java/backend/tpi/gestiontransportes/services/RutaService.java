@@ -114,13 +114,13 @@ public class RutaService {
 
             if (duracionInt < 6) {
                 // generamos un tramo unico
-                Ruta rutaUnica = calcular_ruta_unica(idSolicitud, tarifaDTO, distanciaDestinoOrigen);
+                Ruta rutaUnica = calcular_ruta_unica(idSolicitud, tarifaDTO, distanciaDestinoOrigen, duracionInt);
                 listaRutas.add(rutaUnica);
             }
 
             if (duracionInt >= 6 && duracionInt <= 12) {
                 // generar ruta de tramo unico y ruta de tramo doble
-                Ruta rutaUnica = calcular_ruta_unica(idSolicitud, tarifaDTO, distanciaDestinoOrigen);
+                Ruta rutaUnica = calcular_ruta_unica(idSolicitud, tarifaDTO, distanciaDestinoOrigen, duracionInt);
                 Ruta rutaDoble = calcular_ruta_doble(idSolicitud, origenDireccion, destinoDireccion, tarifaDTO);
                 listaRutas.add(rutaUnica);
                 listaRutas.add(rutaDoble);
@@ -128,7 +128,7 @@ public class RutaService {
 
             if (duracionInt > 12) {
                 // generar ruta de tramo unico, doble y triple
-                Ruta rutaUnica = calcular_ruta_unica(idSolicitud, tarifaDTO, distanciaDestinoOrigen);
+                Ruta rutaUnica = calcular_ruta_unica(idSolicitud, tarifaDTO, distanciaDestinoOrigen, duracionInt);
                 Ruta rutaDoble = calcular_ruta_doble(idSolicitud, origenDireccion, destinoDireccion, tarifaDTO);
                 Ruta rutaTriple = calcular_ruta_triple(idSolicitud, origenDireccion, destinoDireccion, tarifaDTO);
                 listaRutas.add(rutaUnica);
@@ -174,7 +174,7 @@ public class RutaService {
         return resultado.orElse(null);
     }
 
-    private Ruta calcular_ruta_unica(Integer idSolicitud, TarifaDTO tarifa, double distanciaTotal) {
+    private Ruta calcular_ruta_unica(Integer idSolicitud, TarifaDTO tarifa, double distanciaTotal, Integer duracionHs) {
         Ruta rutaUnica = new Ruta();
         Tramo tramo1 = new Tramo();
 
@@ -193,6 +193,8 @@ public class RutaService {
         // setear distancia en bigDecimal
         BigDecimal distanciaBigDecimal = new BigDecimal(String.valueOf(distanciaTotal));
         tramo1.setDistanciaKm(distanciaBigDecimal);
+        // setear duracionEstimada
+        tramo1.setTiempoEstimadoHs(duracionHs);
 
         // calcular costo aprox BigDecimal
         BigDecimal costoAproxTramo1 = calcular_costo_aprox_tramo(distanciaTotal, tarifa);
@@ -235,8 +237,11 @@ public class RutaService {
             DistanciaDTO origenADepositoDTO = this.geoService.calcularDistancia(depositoIntermedio.getDireccionTxt(),
                     origenDireccion);
             double distanciaOrigenDeposito = origenADepositoDTO.getKilometros();
+            String duracionHsTxt = origenADepositoDTO.getDuracionTexto();
+            Integer duracionHsInt = transformarAHoras(duracionHsTxt);
             BigDecimal distancia1BigDecimal = new BigDecimal(String.valueOf(distanciaOrigenDeposito));
             tramo1.setDistanciaKm(distancia1BigDecimal);
+            tramo1.setTiempoEstimadoHs(duracionHsInt);
             // calcular costo aprox BigDecimal
             BigDecimal costoAproxTramo1 = calcular_costo_aprox_tramo(distanciaOrigenDeposito, tarifa);
             tramo1.setCostoAprox(costoAproxTramo1);
@@ -256,8 +261,11 @@ public class RutaService {
             DistanciaDTO depositoADestinoDTO = this.geoService.calcularDistancia(depositoIntermedio.getDireccionTxt(),
                     destinoDireccion);
             double distanciaDepositoDestino = depositoADestinoDTO.getKilometros();
+            String duracionHsTxt = depositoADestinoDTO.getDuracionTexto();
+            Integer duracionHsInt = transformarAHoras(duracionHsTxt);
             BigDecimal distancia2BigDecimal = new BigDecimal(String.valueOf(distanciaDepositoDestino));
             tramo2.setDistanciaKm(distancia2BigDecimal);
+            tramo2.setTiempoEstimadoHs(duracionHsInt);
             // calcular costo aprox BigDecimal
             BigDecimal costoAproxTramo2 = calcular_costo_aprox_tramo(distanciaDepositoDestino, tarifa);
             tramo2.setCostoAprox(costoAproxTramo2);
@@ -313,8 +321,11 @@ public class RutaService {
             DistanciaDTO origenADepositoDTO = this.geoService.calcularDistancia(origenDireccion,
                     depositoCercanoAlOrigen.getDireccionTxt());
             double distanciaOrigenDeposito = origenADepositoDTO.getKilometros();
+            String duracionHsString = origenADepositoDTO.getDuracionTexto();
+            Integer duracionHsInt = transformarAHoras(duracionHsString);
             BigDecimal distancia1BigDecimal = new BigDecimal(String.valueOf(distanciaOrigenDeposito));
             tramo1.setDistanciaKm(distancia1BigDecimal);
+            tramo1.setTiempoEstimadoHs(duracionHsInt);
             // calcular costo aprox
             BigDecimal costoAproxTramo1 = calcular_costo_aprox_tramo(distanciaOrigenDeposito, tarifa);
             tramo1.setCostoAprox(costoAproxTramo1);
@@ -337,8 +348,11 @@ public class RutaService {
             DistanciaDTO depositoADepositoDTO = this.geoService.calcularDistancia(depositoCercanoAlOrigenDireccion,
                     depositoCercanoAlDestinoDireccion);
             double distanciaDepositoDeposito = depositoADepositoDTO.getKilometros();
+            String duracionHsString = depositoADepositoDTO.getDuracionTexto();
+            Integer duracionHsInt = transformarAHoras(duracionHsString);
             BigDecimal distancia2BigDecimal = new BigDecimal(String.valueOf(distanciaDepositoDeposito));
             tramo2.setDistanciaKm(distancia2BigDecimal);
+            tramo2.setTiempoEstimadoHs(duracionHsInt);
             // calcular costo aprox
             BigDecimal costoAproxTramo2 = calcular_costo_aprox_tramo(distanciaDepositoDeposito, tarifa);
             tramo2.setCostoAprox(costoAproxTramo2);
@@ -358,8 +372,11 @@ public class RutaService {
             DistanciaDTO depositoADestinoDTO = this.geoService
                     .calcularDistancia(depositoCercanoAlDestino.getDireccionTxt(), destinoDireccion);
             double distanciaDepositoDestino = depositoADestinoDTO.getKilometros();
+            String duracionHsString = depositoADestinoDTO.getDuracionTexto();
+            Integer duracionHsInt = transformarAHoras(duracionHsString);
             BigDecimal distancia3BigDecimal = new BigDecimal(String.valueOf(distanciaDepositoDestino));
             tramo3.setDistanciaKm(distancia3BigDecimal);
+            tramo3.setTiempoEstimadoHs(duracionHsInt);
             // calcular costo aprox
             BigDecimal costoAproxTramo3 = calcular_costo_aprox_tramo(distanciaDepositoDestino, tarifa);
             tramo3.setCostoAprox(costoAproxTramo3);
@@ -477,4 +494,8 @@ public class RutaService {
         this.solicitudesClient.marcarSolicitudProgramada(id);
     }
 
+    // asignar una duracion estimada a la solicitud
+    public void actualizarTiempoEstimadoHs(Integer id, Integer tiempoEstimadoHs) {
+        this.solicitudesClient.actualizarTiempoEstimadoHs(id, tiempoEstimadoHs);
+    }
 }

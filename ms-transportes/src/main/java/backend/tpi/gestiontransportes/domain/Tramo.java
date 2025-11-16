@@ -59,5 +59,12 @@ public class Tramo {
     // cambio para calcular mejor los costos
     @Column(name = "distancia_km")
     private BigDecimal distanciaKm;
+
+    // agregado para calculos de tiempo real y tiempo estimado de la solicitud
+    @Column(name = "tiempo_estimado_hs")
+    private Integer tiempoEstimadoHs;
+
+    @Column(name = "tiempo_real_hs")
+    private Integer tiempoRealHs;
 }
 

@@ -3,8 +3,10 @@ package backend.tpi.gestiontransportes.services;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.springframework.context.annotation.Lazy;
@@ -145,19 +147,29 @@ public class TramoService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El tramo aun no fue iniciado");
         }
 
-        tramo.setFechaHoraFin(LocalDateTime.now());
+        LocalDateTime fechaHoraFin = LocalDateTime.now();
+
+        tramo.setFechaHoraFin(fechaHoraFin);
         tramo.setEstado("finalizado");
+
+        // hacemos los calculos para la duracion del tramo
+        LocalDateTime fechaHoraInicio = tramo.getFechaHoraInicio();
+        Integer duracionTramoHs = (int) ChronoUnit.HOURS.between(fechaHoraInicio, fechaHoraFin);
+        tramo.setTiempoRealHs(duracionTramoHs);
 
         tramo.getCamion().setEstado("libre");
         camionService.modificar(tramo.getCamion().getId(), tramo.getCamion());
 
         Tramo tramoActualizado = calcularCostoReal(tramo);
 
+        // en caso de que sea el ultimo tramo, no tendrá un deposito de destino (o en caso de que sea el unico tramo tampoco)
         if (tramo.getDepositoDestino() == null) {
             Ruta ruta = tramo.getRuta();
             Ruta rutaFinalizada = rutaService.calcularCostoReal(ruta);
             rutaService.modificar(ruta.getId(), rutaFinalizada);
             marcarSolicitudEntregada(ruta.getIdSolicitud());
+            // si es el ultimo tramo de la ruta tenemos que calcular la duracion real en hs de la solicitud
+            actualizarTiempoFinalHs(ruta.getIdSolicitud(), ruta.getId(),fechaHoraFin);
         }
 
         return modificar(idTramo, tramoActualizado)
@@ -192,17 +204,9 @@ public class TramoService {
             Tramo tramoAnterior = tramosRuta.get(tramo.getNroOrden() - 1);
             LocalDateTime fechaFinTramoAnterior = tramoAnterior.getFechaHoraFin();
             LocalDateTime fechaInicioActual = tramo.getFechaHoraInicio();
-            cantHoras = BigDecimal.valueOf(ChronoUnit.HOURS.between(fechaFinTramoAnterior, fechaInicioActual) + 1); // corrijo
-                                                                                                                    // con
-                                                                                                                    // +1
-                                                                                                                    // por
-                                                                                                                    // si
-                                                                                                                    // el
-                                                                                                                    // camion
-                                                                                                                    // se
-                                                                                                                    // quedó
-                                                                                                                    // 0
-                                                                                                                    // horas
+
+            // corrijo con +1 por si el camion se quedó 0 horas
+            cantHoras = BigDecimal.valueOf(ChronoUnit.HOURS.between(fechaFinTramoAnterior, fechaInicioActual) + 1);
         }
         // obtener el costo de estadia por hora del deposito de origen del tramo actual
         // aunque si es el primer tramo, no tiene deposito de origen
@@ -256,4 +260,16 @@ public class TramoService {
     public void marcarSolicitudEnTransito(Integer id) {
         this.solicitudesClient.marcarSolicitudEnTransito(id);
     }
+
+    public void actualizarTiempoFinalHs(Integer idSol, Integer idRuta, LocalDateTime fechaFinal) {
+        List<Tramo> tramos = buscarPorRuta(idRuta);
+        List<Tramo> tramosOrdenados = tramos.stream().sorted(Comparator.comparing(Tramo::getNroOrden)).collect(Collectors.toList());
+        // quedarse con la fecha de inicio del primer tramo
+        LocalDateTime fechaInicial = tramosOrdenados.get(0).getFechaHoraInicio();
+        Integer duracionReal_hs = (int) ChronoUnit.HOURS.between(fechaInicial, fechaFinal);
+        this.solicitudesClient.actualizarTiempoFinalHs(idRuta, duracionReal_hs);
+    }
+
+    
+
 }
