@@ -122,7 +122,7 @@ CREATE TABLE rutas (
   cant_depositos  NUMERIC(6,0),
   -- FACU recomienda agregar esto:
   costo_aprox        NUMERIC(14,2),
-  costo_real         NUMERIC(14,2), -- aunque son atributos calculados, nos simplifican un monton de cosas
+  costo_real         NUMERIC(14,2)  -- aunque son atributos calculados, nos simplifican un monton de cosas
 );
 CREATE INDEX idx_rutas_solicitud ON rutas(id_solicitud);
 

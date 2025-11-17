@@ -25,6 +25,8 @@ public class Tramo {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_ruta", nullable = false)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private Ruta ruta;
 
     @Column(name = "nro_orden", nullable = false)
@@ -67,4 +69,3 @@ public class Tramo {
     @Column(name = "tiempo_real_hs")
     private Integer tiempoRealHs;
 }
-

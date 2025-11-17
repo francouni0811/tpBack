@@ -22,7 +22,7 @@ public class Tarifa {
 
     @NotBlank(message = "la descrip de tarifa es obligatoria")
     private String descripcion;
-    
+
     @NotNull(message = "El volumen mínimo es obligatorio")
     private BigDecimal volMin;
 
@@ -30,7 +30,12 @@ public class Tarifa {
     private BigDecimal volMax;
 
     @NotNull(message = "El costo base por km x volumen es obligatorio")
-    @Column(name = "costo_base_km_xvol")
+    // Ajuste temporal: algunos esquemas existentes no tienen el underscore entre
+    // 'km' y 'xvol'.
+    // El error en tiempo de ejecución sugería "costo_base_kmxvol", así que mapeamos
+    // a ese nombre
+    // para mantener compatibilidad con la BD desplegada.
+    @Column(name = "costo_base_kmxvol")
     private BigDecimal costoBaseKmXVol;
 
     @NotNull(message = "El valor del combustible es obligatorio")

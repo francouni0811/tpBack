@@ -63,6 +63,7 @@ public class TramoService {
     }
 
     public Tramo guardar(Tramo nuevo) {
+        System.out.println("--------------------------------------Guardando nuevo tramo: ");
         return tramoRepository.guardar(nuevo);
     }
 
@@ -162,14 +163,16 @@ public class TramoService {
 
         Tramo tramoActualizado = calcularCostoReal(tramo);
 
-        // en caso de que sea el ultimo tramo, no tendrá un deposito de destino (o en caso de que sea el unico tramo tampoco)
+        // en caso de que sea el ultimo tramo, no tendrá un deposito de destino (o en
+        // caso de que sea el unico tramo tampoco)
         if (tramo.getDepositoDestino() == null) {
             Ruta ruta = tramo.getRuta();
             Ruta rutaFinalizada = rutaService.calcularCostoReal(ruta);
             rutaService.modificar(ruta.getId(), rutaFinalizada);
             marcarSolicitudEntregada(ruta.getIdSolicitud());
-            // si es el ultimo tramo de la ruta tenemos que calcular la duracion real en hs de la solicitud
-            actualizarTiempoFinalHs(ruta.getIdSolicitud(), ruta.getId(),fechaHoraFin);
+            // si es el ultimo tramo de la ruta tenemos que calcular la duracion real en hs
+            // de la solicitud
+            actualizarTiempoFinalHs(ruta.getIdSolicitud(), ruta.getId(), fechaHoraFin);
         }
 
         return modificar(idTramo, tramoActualizado)
@@ -263,13 +266,12 @@ public class TramoService {
 
     public void actualizarTiempoFinalHs(Integer idSol, Integer idRuta, LocalDateTime fechaFinal) {
         List<Tramo> tramos = buscarPorRuta(idRuta);
-        List<Tramo> tramosOrdenados = tramos.stream().sorted(Comparator.comparing(Tramo::getNroOrden)).collect(Collectors.toList());
+        List<Tramo> tramosOrdenados = tramos.stream().sorted(Comparator.comparing(Tramo::getNroOrden))
+                .collect(Collectors.toList());
         // quedarse con la fecha de inicio del primer tramo
         LocalDateTime fechaInicial = tramosOrdenados.get(0).getFechaHoraInicio();
         Integer duracionReal_hs = (int) ChronoUnit.HOURS.between(fechaInicial, fechaFinal);
         this.solicitudesClient.actualizarTiempoFinalHs(idRuta, duracionReal_hs);
     }
-
-    
 
 }

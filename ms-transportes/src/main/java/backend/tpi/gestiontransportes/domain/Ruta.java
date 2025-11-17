@@ -6,6 +6,8 @@ import java.util.List;
 
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 @Entity
 @Table(name = "rutas")
@@ -20,7 +22,8 @@ public class Ruta {
     @Column(name = "id_ruta")
     private Integer id;
 
-    // Referencia a solicitudes (microservicio ms-solicitudes). La mantenemos como entero simple.
+    // Referencia a solicitudes (microservicio ms-solicitudes). La mantenemos como
+    // entero simple.
     @Column(name = "id_solicitud", nullable = false)
     private Integer idSolicitud;
 
@@ -38,6 +41,8 @@ public class Ruta {
     private BigDecimal costoReal;
 
     @Transient
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private List<Tramo> tramos;
 
     public void agregarTramo(Tramo tramo) {
@@ -51,4 +56,3 @@ public class Ruta {
         this.tramos = new ArrayList<>();
     }
 }
-

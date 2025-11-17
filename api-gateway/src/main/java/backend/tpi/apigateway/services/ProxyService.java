@@ -40,19 +40,48 @@ public class ProxyService {
 
         log.info("➡️ Redirigiendo [{}] a {}", method, targetUrl);
 
-        var request = client.method(HttpMethod.valueOf(method))
-                .uri(targetUrl);
+        var request = client
+                .method(HttpMethod.valueOf(method))
+                .uri(targetUrl)
+                .headers(httpHeaders -> {
+                    // Support case-insensitive header lookup: some frameworks provide capitalized
+                    // header names
+                    String auth = headers.getOrDefault("authorization", headers.get("Authorization"));
+                    if (auth != null) {
+                        log.debug("ProxyService: incoming Authorization header present (truncated): {}",
+                                auth.length() > 20 ? auth.substring(0, 20) + "..." : auth);
+                        httpHeaders.add("Authorization", auth);
+                    } else {
+                        log.debug("ProxyService: no Authorization header found in incoming request headers: keys={}",
+                                headers.keySet());
+                    }
+
+                    // Forward Content-Type if present (important for POST/PUT JSON bodies)
+                    String contentType = headers.getOrDefault("content-type", headers.get("Content-Type"));
+                    if (contentType != null) {
+                        log.debug("ProxyService: forwarding Content-Type: {}", contentType);
+                        httpHeaders.add("Content-Type", contentType);
+                    }
+
+                    // Forward Accept header when available
+                    String accept = headers.getOrDefault("accept", headers.get("Accept"));
+                    if (accept != null) {
+                        log.debug("ProxyService: forwarding Accept: {}", accept);
+                        httpHeaders.add("Accept", accept);
+                    }
+                });
 
         if (body != null && !body.isEmpty()) {
             request.body(body);
         }
 
-    try {
-        return request
-            .retrieve()
-            .toEntity(String.class);
+        try {
+            return request
+                    .retrieve()
+                    .toEntity(String.class);
         } catch (org.springframework.web.client.RestClientResponseException e) {
-            // Si el downstream responde 4xx/5xx, devolvemos el mismo status y cuerpo al cliente
+            // Si el downstream responde 4xx/5xx, devolvemos el mismo status y cuerpo al
+            // cliente
             String responseBody = e.getResponseBodyAsString();
             // En Spring 6+ RestClientResponseException expone getStatusCode() que devuelve
             // HttpStatusCode; no existe getRawStatusCode() en algunas versiones. Usamos

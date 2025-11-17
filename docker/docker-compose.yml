@@ -70,7 +70,7 @@ services:
       retries: 3
 
   api-gateway:
-    build: ../ApiGateway
+    build: ../api-gateway
     container_name: api-gateway
     environment:
       SPRING_PROFILES_ACTIVE: docker
