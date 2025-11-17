@@ -33,9 +33,7 @@ public class SecurityConfig {
                                 "/webjars/**",
                                 "/actuator/health/**")
                         .permitAll()
-                        // Deshabilitado temporariamente: en desarrollo no tenemos seguridad
-                        // implementada
-                        // .requestMatchers("/api/v1/**").authenticated()
+                        .requestMatchers("/api/v1/**").authenticated()
                         .anyRequest().permitAll())
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())));

@@ -11,6 +11,8 @@ import backend.tpi.gestiontransportes.domain.Camion;
 import backend.tpi.gestiontransportes.services.CamionService;
 import jakarta.validation.Valid;
 
+import org.springframework.security.access.prepost.PreAuthorize;
+
 @RestController
 @RequestMapping("api/v1/camiones")
 public class CamionController {
@@ -23,6 +25,7 @@ public class CamionController {
 
     // GET /api/v1/camiones
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<Camion>> obtenerTodos() {
         List<Camion> lista = camionService.listarTodos();
         if (lista.isEmpty())
@@ -40,6 +43,7 @@ public class CamionController {
 
     // POST /api/v1/camiones
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Camion> crear(@Valid @RequestBody Camion nuevo) {
         Camion guardado = camionService.guardar(nuevo);
         return ResponseEntity.status(HttpStatus.CREATED).body(guardado);
@@ -47,6 +51,7 @@ public class CamionController {
 
     // PUT /api/v1/camiones/{id}
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Camion> actualizar(@PathVariable("id") Integer id,
             @Valid @RequestBody Camion actualizado) {
         Optional<Camion> res = camionService.modificar(id, actualizado);
@@ -56,6 +61,7 @@ public class CamionController {
 
     // DELETE /api/v1/camiones/{id}
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> borrar(@PathVariable("id") Integer id) {
         if (camionService.existe(id)) {
             camionService.eliminarPorId(id);

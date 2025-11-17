@@ -16,7 +16,7 @@ public class GatewayController {
     private final ProxyService proxyService;
 
     @RequestMapping(value = "/**", method = { RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT,
-            RequestMethod.DELETE, RequestMethod.PATCH })
+            RequestMethod.DELETE })
     public ResponseEntity<String> proxyAll(
             HttpServletRequest request,
             @RequestBody(required = false) String body,

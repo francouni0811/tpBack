@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import backend.tpi.gestiontransportes.DTOS.SolicitudDestinoOrigenDTO;
@@ -31,6 +32,7 @@ public class RutaController {
 
     // GET /api/v1/rutas
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<Ruta>> obtenerTodos() {
         List<Ruta> lista = rutaService.listarTodos();
         if (lista.isEmpty())
@@ -48,6 +50,7 @@ public class RutaController {
 
     // POST /api/v1/rutas
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Ruta> crear(@Valid @RequestBody Ruta nuevo) {
         Ruta guardado = rutaService.guardar(nuevo);
         return ResponseEntity.status(HttpStatus.CREATED).body(guardado);
@@ -55,6 +58,7 @@ public class RutaController {
 
     // PUT /api/v1/rutas/{id}
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Ruta> actualizar(@PathVariable("id") Integer id,
             @Valid @RequestBody Ruta actualizado) {
         Optional<Ruta> res = rutaService.modificar(id, actualizado);
@@ -64,6 +68,7 @@ public class RutaController {
 
     // DELETE /api/v1/rutas/{id}
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> borrar(@PathVariable("id") Integer id) {
         if (rutaService.existe(id)) {
             rutaService.eliminarPorId(id);
@@ -74,6 +79,7 @@ public class RutaController {
 
     // GET /api/v1/rutas/{idSol}/rutas-posibles
     @GetMapping("/{idSol}/rutas-posibles")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<Ruta>> obtenerRutasPosibles(@PathVariable("idSol") Integer idSol) {
         System.out.println("\n\n Testeando obtener rutas posibles \n\n");
         List<Ruta> listaRutasPosibles = rutaService.generarRutasPosibles(idSol);
@@ -85,6 +91,7 @@ public class RutaController {
     // POST api/v1/rutas/{idSol}/asignar-ruta/{nroOrden}
     @GetMapping("{idSol}/asignar-ruta/{nroOrden}") // capaz podria ser un POST pero lo hago GET porque no toma ningun
                                                    // body y es mas facil testearlo desde google
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Ruta> asignarRuta(@PathVariable("idSol") Integer idSol,
             @PathVariable("nroOrden") Integer nroOrden) {
 
