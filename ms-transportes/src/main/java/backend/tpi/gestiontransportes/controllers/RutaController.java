@@ -111,7 +111,7 @@ public class RutaController {
 
             rutaService.marcarSolicitudProgramada(rutaSelecc.getIdSolicitud());
             rutaService.actualizarTiempoEstimadoHs(idSol, acum_hs);
-
+            solicitudesClient.actualizarCostoEstimado(idSol, rutaSelecc.getCostoAprox());
 
             rutaSelecc.limpiarTramos(); // para que se muestre lindo en pantalla
             return ResponseEntity.ok(rutaSelecc);

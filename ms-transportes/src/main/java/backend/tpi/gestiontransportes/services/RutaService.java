@@ -448,7 +448,7 @@ public class RutaService {
         }
 
         BigDecimal sumaTotal = camiones.stream()
-                .filter(camion -> camion.getEstado() != null && camion.getEstado().equalsIgnoreCase("Disponible"))
+                .filter(camion -> camion.getEstado() != null && camion.getEstado().equalsIgnoreCase("Libre"))
                 // Mapeamos el objeto Camion a su campo BigDecimal (consumoXKm)
                 .map(Camion::getConsumoXKm)
                 // Filtramos posibles valores nulos antes de sumar
