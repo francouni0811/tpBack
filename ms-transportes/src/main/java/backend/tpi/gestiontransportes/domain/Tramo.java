@@ -52,10 +52,10 @@ public class Tramo {
     @Column(name = "costo_real", precision = 14, scale = 2)
     private BigDecimal costoReal;
 
-    @Column(name = "fechaHora_inicio")
+    @Column(name = "fechahora_inicio")
     private LocalDateTime fechaHoraInicio;
 
-    @Column(name = "fechaHora_fin")
+    @Column(name = "fechahora_fin")
     private LocalDateTime fechaHoraFin;
 
     // cambio para calcular mejor los costos

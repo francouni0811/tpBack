@@ -14,7 +14,7 @@ DROP TABLE IF EXISTS transportistas CASCADE;
 CREATE TABLE clientes (
   id_cliente     SERIAL PRIMARY KEY,
   nombre         VARCHAR(120) NOT NULL,
-  telefono       NUMERIC(20,0),
+  telefono       VARCHAR(20),
   email          VARCHAR(180)
   -- UNIQUE (email)               -- descomentar si queremos evitar duplicados
 );
@@ -25,7 +25,7 @@ CREATE TABLE clientes (
 CREATE TABLE transportistas (
   id_transportista SERIAL PRIMARY KEY,
   nombre           VARCHAR(120) NOT NULL,
-  telefono         NUMERIC(20,0)
+  telefono         VARCHAR(20)
 );
 
 -- =========================
@@ -35,7 +35,7 @@ CREATE TABLE camiones (
   id_camion                 SERIAL PRIMARY KEY,
   id_transportista          INT NOT NULL REFERENCES transportistas(id_transportista) ON DELETE RESTRICT,
   patente                   VARCHAR(20) NOT NULL,
-  telefono                  NUMERIC(20,0),
+  telefono                  VARCHAR(20),
   capacidadKg               NUMERIC(12,2),
   volumen_max               NUMERIC(12,3),
   estado                    VARCHAR(40),

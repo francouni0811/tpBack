@@ -30,12 +30,10 @@ public class Tarifa {
     private BigDecimal volMax;
 
     @NotNull(message = "El costo base por km x volumen es obligatorio")
-    // Ajuste temporal: algunos esquemas existentes no tienen el underscore entre
-    // 'km' y 'xvol'.
-    // El error en tiempo de ejecución sugería "costo_base_kmxvol", así que mapeamos
-    // a ese nombre
-    // para mantener compatibilidad con la BD desplegada.
-    @Column(name = "costo_base_kmxvol")
+    // Ajuste: la columna en la base de datos contiene un underscore entre
+    // 'km' y 'xvol' (`costo_base_km_xvol`). Mapear correctamente para evitar
+    // errores de consulta contra esquemas existentes.
+    @Column(name = "costo_base_km_xvol")
     private BigDecimal costoBaseKmXVol;
 
     @NotNull(message = "El valor del combustible es obligatorio")

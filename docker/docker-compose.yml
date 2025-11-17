@@ -59,6 +59,8 @@ services:
       DB_NAME: sakila
       DB_USER: postgres
       DB_PASS: 123456
+      # Google Maps API key (provide via host env or .env file)
+      GOOGLE_MAPS_APIKEY: "${GOOGLE_MAPS_APIKEY}"
     ports:
       - "8082:8082"
     networks: [ backend-net ]

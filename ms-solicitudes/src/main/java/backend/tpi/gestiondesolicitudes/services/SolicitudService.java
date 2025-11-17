@@ -83,6 +83,7 @@ public class SolicitudService {
         }
 
         contenedor.setCliente(cliente);
+        contenedor.setEstado("no retirado");
         contenedorRepository.guardar(contenedor);
         nuevaSolicitud.setContenedor(contenedor);
 
