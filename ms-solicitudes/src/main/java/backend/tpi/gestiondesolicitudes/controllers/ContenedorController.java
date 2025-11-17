@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import backend.tpi.gestiondesolicitudes.domain.Contenedor;
+import backend.tpi.gestiondesolicitudes.domain.Solicitud;
 import backend.tpi.gestiondesolicitudes.services.ContenedorService;
 import jakarta.validation.Valid;
 
@@ -98,4 +100,70 @@ public class ContenedorController {
         }
     }
 
+    // manejo de estados para los contenedores
+    // no retirado, en viaje, en deposito, retirado
+
+    // GET /api/v1/contenedores/{id}/estado
+    // Obtiene el estado de una solicitud por el ID de la solicitud
+
+    @GetMapping("/{id}/estado")
+    public ResponseEntity<Map<String, Object>> obtenerEstadoPorIdContenedor(@PathVariable Integer id) {
+        var contenedorOpt = contenedorService.buscarPorId(id);
+        if (contenedorOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "No existe un contenedor con ID " + id));
+        }
+        var contenedor = contenedorOpt.get();
+        return ResponseEntity.ok(Map.of(
+                "idContenedor", contenedor.getId(),
+                "estado", contenedor.getEstado()));
+    }
+
+    // patchs
+
+    @PatchMapping("{id}/enViaje")
+    public ResponseEntity<Contenedor> marcarEnViaje(@PathVariable("id") Integer id) {
+        Optional<Contenedor> contenedorEncontrado = contenedorService.buscarPorId(id);
+        if (contenedorEncontrado.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+        Contenedor contenedor = contenedorEncontrado.get();
+
+        contenedor.setEstado("En Viaje");
+
+        Optional<Contenedor> modificada = contenedorService.modificar(id, contenedor);
+        return modificada.map(c -> ResponseEntity.status(HttpStatus.OK).body(c))
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+    }
+
+    @PatchMapping("{id}/enDeposito")
+    public ResponseEntity<Contenedor> marcarEnDeposito(@PathVariable("id") Integer id) {
+        Optional<Contenedor> contenedorEncontrado = contenedorService.buscarPorId(id);
+        if (contenedorEncontrado.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+        Contenedor contenedor = contenedorEncontrado.get();
+
+        contenedor.setEstado("En Deposito");
+
+        Optional<Contenedor> modificada = contenedorService.modificar(id, contenedor);
+        return modificada.map(c -> ResponseEntity.status(HttpStatus.OK).body(c))
+
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+    }
+
+    @PatchMapping("{id}/retirado")
+    public ResponseEntity<Contenedor> marcarRetirado(@PathVariable("id") Integer id) {
+        Optional<Contenedor> contenedorEncontrado = contenedorService.buscarPorId(id);
+        if (contenedorEncontrado.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+        Contenedor contenedor = contenedorEncontrado.get();
+
+        contenedor.setEstado("Retirado");
+
+        Optional<Contenedor> modificada = contenedorService.modificar(id, contenedor);
+        return modificada.map(c -> ResponseEntity.status(HttpStatus.OK).body(c))
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+    }
 }

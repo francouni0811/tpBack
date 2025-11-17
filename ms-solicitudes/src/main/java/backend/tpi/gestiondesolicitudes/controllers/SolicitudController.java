@@ -51,7 +51,7 @@ public class SolicitudController {
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
-    // GET /api/v1/solicitudes/{id}/estad
+    // GET /api/v1/solicitudes/{id}/estado
     // Obtiene el estado de una solicitud por el ID de la solicitud
     @GetMapping("/{id}/estado")
     public ResponseEntity<Map<String, Object>> obtenerEstadoPorIdSolicitud(@PathVariable Integer id) {

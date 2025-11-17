@@ -41,10 +41,10 @@ INSERT INTO camiones (
   consumoXKm,
   costo_base_trasladoXKm
 ) VALUES
-(1, 'AA123BB', 3517001001, 12000.00,  30.000, 'Disponible',   0.320, 250.00),
-(1, 'AA234CC', 3517001002,  8000.00,  20.000, 'Disponible',   0.280, 220.00),
-(2, 'AB345DD', 3517002001, 16000.00,  40.000, 'Mantenimiento',0.350, 270.00),
-(3, 'AC456EE', 3517003001, 10000.00,  25.000, 'Trasladando',  0.300, 240.00);
+(1, 'AA123BB', 3517001001, 12000.00,  30.000, 'Libre',   0.320, 250.00),
+(1, 'AA234CC', 3517001002,  8000.00,  20.000, 'Libre',   0.280, 220.00),
+(2, 'AB345DD', 3517002001, 16000.00,  40.000, 'Libre',0.350, 270.00),
+(3, 'AC456EE', 3517003001, 10000.00,  25.000, 'Libre',  0.300, 240.00);
 
 -- =========================
 -- DEPOSITOS
@@ -97,11 +97,11 @@ INSERT INTO contenedores (
   volumen,
   estado
 ) VALUES
-(1,  800.0,  8.500, 'Disponible'),
-(2, 1200.0, 12.000, 'Disponible'),
-(3, 3500.0, 28.000, 'Disponible'),
-(4, 5000.0, 40.000, 'Disponible'),
-(5,  600.0,  5.000, 'Disponible');
+(1,  800.0,  8.500, 'no retirado'),
+(2, 1200.0, 12.000, 'no retirado'),
+(3, 3500.0, 28.000, 'no retirado'),
+(4, 5000.0, 40.000, 'no retirado'),
+(5,  600.0,  5.000, 'no retirado');
 
 -- IDs contenedores:
 -- 1: Cliente 1

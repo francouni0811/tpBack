@@ -139,11 +139,16 @@ public class TramoService {
         tramo.getCamion().setEstado("EnTransito");
         camionService.modificar(tramo.getCamion().getId(), tramo.getCamion());
 
+        // modificar lso estados de la solicitud y del contenedor
+        Ruta ruta = tramo.getRuta();
+        Integer idSolicitud = ruta.getIdSolicitud();
+
         if (tramo.getNroOrden() == 0) {
-            Ruta ruta = tramo.getRuta();
-            Integer idSolicitud = ruta.getIdSolicitud();
             marcarSolicitudEnTransito(idSolicitud);
         }
+
+        SolicitudDestinoOrigenDTO solicitud = solicitudesClient.obtenerSolicitudPorId(idSolicitud);
+        contenedoresClient.marcarContenedorEnViaje(solicitud.getIdContenedor());
 
         return modificar(idTramo, tramo)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No se pudo actualizar el tramo"));
@@ -178,15 +183,21 @@ public class TramoService {
 
         // en caso de que sea el ultimo tramo, no tendrá un deposito de destino (o en
         // caso de que sea el unico tramo tampoco)
+        Ruta ruta = tramo.getRuta();
+        SolicitudDestinoOrigenDTO solicitud = solicitudesClient.obtenerSolicitudPorId(ruta.getIdSolicitud());
         if (tramo.getDepositoDestino() == null) {
-            Ruta ruta = tramo.getRuta();
             Ruta rutaFinalizada = rutaService.calcularCostoReal(ruta);
             rutaService.modificar(ruta.getId(), rutaFinalizada);
+            // modificar estado de la solciitud y contenedor
             marcarSolicitudEntregada(ruta.getIdSolicitud());
+            contenedoresClient.marcarContenedorRetirado(solicitud.getIdContenedor());
+
             // si es el ultimo tramo de la ruta tenemos que calcular la duracion real en hs
             // de la solicitud
             actualizarTiempoFinalHs(ruta.getIdSolicitud(), ruta.getId(), fechaHoraFin);
             solicitudesClient.actualizarCostoFinal(ruta.getIdSolicitud(), rutaFinalizada.getCostoReal());
+        } else {
+            contenedoresClient.marcarContenedorEnDeposito(solicitud.getIdContenedor());
         }
 
         return modificar(idTramo, tramoActualizado)
