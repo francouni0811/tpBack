@@ -113,8 +113,21 @@ public class TramoService {
 
         if (tramo.getNroOrden() != 0) {
             int idRuta = tramo.getRuta().getId();
-            List<Tramo> tramosRuta = buscarPorRuta(idRuta);
-            Tramo tramoAnterior = tramosRuta.get(tramo.getNroOrden() - 1);
+            List<Tramo> tramosRuta = buscarPorRuta(idRuta).stream()
+                    .sorted(Comparator.comparing(Tramo::getNroOrden))
+                    .collect(Collectors.toList());
+
+            int nroAnterior = tramo.getNroOrden() - 1;
+            Optional<Tramo> optTramoAnterior = tramosRuta.stream()
+                    .filter(t -> t.getNroOrden() == nroAnterior)
+                    .findFirst();
+
+            if (optTramoAnterior.isEmpty()) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        "No se encontro el tramo anterior (nroOrden=" + nroAnterior + ") para la ruta");
+            }
+
+            Tramo tramoAnterior = optTramoAnterior.get();
             if (tramoAnterior.getFechaHoraFin() == null) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El tramo anterior aun no finalizo");
             }
@@ -173,6 +186,7 @@ public class TramoService {
             // si es el ultimo tramo de la ruta tenemos que calcular la duracion real en hs
             // de la solicitud
             actualizarTiempoFinalHs(ruta.getIdSolicitud(), ruta.getId(), fechaHoraFin);
+            solicitudesClient.actualizarCostoFinal(ruta.getIdSolicitud(), rutaFinalizada.getCostoReal());
         }
 
         return modificar(idTramo, tramoActualizado)
@@ -203,13 +217,34 @@ public class TramoService {
         // (le sumo +1 a la cant de horas por cuestiones de testing)
         if (tramo.getNroOrden() != 0) {
             int idRuta = tramo.getRuta().getId();
-            List<Tramo> tramosRuta = buscarPorRuta(idRuta);
-            Tramo tramoAnterior = tramosRuta.get(tramo.getNroOrden() - 1);
-            LocalDateTime fechaFinTramoAnterior = tramoAnterior.getFechaHoraFin();
-            LocalDateTime fechaInicioActual = tramo.getFechaHoraInicio();
+            List<Tramo> tramosRuta = buscarPorRuta(idRuta).stream()
+                    .sorted(Comparator.comparing(Tramo::getNroOrden))
+                    .collect(Collectors.toList());
 
-            // corrijo con +1 por si el camion se quedó 0 horas
-            cantHoras = BigDecimal.valueOf(ChronoUnit.HOURS.between(fechaFinTramoAnterior, fechaInicioActual) + 1);
+            int nroAnterior = tramo.getNroOrden() - 1;
+            Optional<Tramo> optTramoAnterior = tramosRuta.stream()
+                    .filter(t -> t.getNroOrden() == nroAnterior)
+                    .findFirst();
+
+            if (optTramoAnterior.isPresent()) {
+                Tramo tramoAnterior = optTramoAnterior.get();
+                LocalDateTime fechaFinTramoAnterior = tramoAnterior.getFechaHoraFin();
+                LocalDateTime fechaInicioActual = tramo.getFechaHoraInicio();
+
+                if (fechaFinTramoAnterior != null && fechaInicioActual != null) {
+                    // corrijo con +1 por si el camion se quedó 0 horas
+                    cantHoras = BigDecimal
+                            .valueOf(ChronoUnit.HOURS.between(fechaFinTramoAnterior, fechaInicioActual) + 1);
+                } else {
+                    // si no hay fechaFin del anterior (deberia haberse validado antes), quedamos en
+                    // 0
+                    cantHoras = BigDecimal.ZERO;
+                }
+            } else {
+                // si no existe tramo anterior, quedamos en 0 (evita excepciones por lista
+                // desordenada)
+                cantHoras = BigDecimal.ZERO;
+            }
         }
         // obtener el costo de estadia por hora del deposito de origen del tramo actual
         // aunque si es el primer tramo, no tiene deposito de origen
@@ -268,10 +303,21 @@ public class TramoService {
         List<Tramo> tramos = buscarPorRuta(idRuta);
         List<Tramo> tramosOrdenados = tramos.stream().sorted(Comparator.comparing(Tramo::getNroOrden))
                 .collect(Collectors.toList());
+        // validar que haya tramos y fechas
+        if (tramosOrdenados.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "La ruta no tiene tramos registrados");
+        }
+
         // quedarse con la fecha de inicio del primer tramo
         LocalDateTime fechaInicial = tramosOrdenados.get(0).getFechaHoraInicio();
+        if (fechaInicial == null || fechaFinal == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "No se puede calcular tiempo final: fecha inicial o final es nula");
+        }
+
         Integer duracionReal_hs = (int) ChronoUnit.HOURS.between(fechaInicial, fechaFinal);
-        this.solicitudesClient.actualizarTiempoFinalHs(idRuta, duracionReal_hs);
+        // enviar el id de la solicitud (idSol) al microservicio de solicitudes
+        this.solicitudesClient.actualizarTiempoFinalHs(idSol, duracionReal_hs);
     }
 
 }
