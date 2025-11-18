@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.client.RestClient.Builder;
 
 import backend.tpi.gestiontransportes.DTOS.SolicitudDestinoOrigenDTO;
 
@@ -17,10 +18,9 @@ public class SolicitudesClient {
 
         private final RestClient restClient;
 
-        public SolicitudesClient(@Value("${ms.solicitudes.url}") String baseUrl) {
-                this.restClient = RestClient.builder()
-                                .baseUrl(baseUrl)
-                                .build();
+        public SolicitudesClient(@Value("${ms.solicitudes.url}") String baseUrl,
+                        RestClient.Builder restClientBuilder) {
+                this.restClient = restClientBuilder.baseUrl(baseUrl).build();
         }
 
         public SolicitudDestinoOrigenDTO obtenerSolicitudPorId(Integer id) {

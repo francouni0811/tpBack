@@ -1,5 +1,7 @@
 package backend.tpi.gestiontransportes.config;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
@@ -14,23 +16,30 @@ import java.util.Optional;
  */
 @Configuration
 public class RestClientConfig {
+    private static final Logger log = LoggerFactory.getLogger(RestClientConfig.class);
 
     /**
      * RestClient bean with automatic JWT token relay
-     * Adds the Authorization header with the current JWT token to all outgoing requests
+     * Adds the Authorization header with the current JWT token to all outgoing
+     * requests
      */
     @Bean
     public RestClient restClient() {
+        return restClientBuilder().build();
+    }
+
+    @Bean
+    public RestClient.Builder restClientBuilder() {
         return RestClient.builder()
                 .requestInterceptor((request, body, execution) -> {
                     // Extract JWT from security context and add to Authorization header
                     String token = getTokenFromContext();
-                    if (token != null && !token.isEmpty()) {
+                    boolean hasAuth = token != null && !token.isEmpty();
+                    if (hasAuth) {
                         request.getHeaders().set(HttpHeaders.AUTHORIZATION, token);
                     }
                     return execution.execute(request, body);
-                })
-                .build();
+                });
     }
 
     /**
