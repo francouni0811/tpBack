@@ -49,6 +49,9 @@ services:
       DB_NAME: sakila
       DB_USER: postgres
       DB_PASS: 123456
+      # Point resource server to Keycloak using the docker service name (internal network)
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: "http://keycloak:8080/realms/tpi-backend"
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: "http://keycloak:8080/realms/tpi-backend/protocol/openid-connect/certs"
     ports:
       - "8082:8082"
     networks: [backend-net]
@@ -79,6 +82,11 @@ services:
       - "8083:8080"
     volumes:
       - ./keycloak_data:/opt/keycloak/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/realms/tpi-backend/.well-known/openid-configuration"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
 
   postgres:
     env_file:
