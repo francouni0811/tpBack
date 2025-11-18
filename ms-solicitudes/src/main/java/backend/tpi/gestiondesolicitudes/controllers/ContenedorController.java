@@ -103,22 +103,6 @@ public class ContenedorController {
     // manejo de estados para los contenedores
     // no retirado, en viaje, en deposito, retirado
 
-    // GET /api/v1/contenedores/{id}/estado
-    // Obtiene el estado de una solicitud por el ID de la solicitud
-
-    @GetMapping("/{id}/estado")
-    public ResponseEntity<Map<String, Object>> obtenerEstadoPorIdContenedor(@PathVariable Integer id) {
-        var contenedorOpt = contenedorService.buscarPorId(id);
-        if (contenedorOpt.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("error", "No existe un contenedor con ID " + id));
-        }
-        var contenedor = contenedorOpt.get();
-        return ResponseEntity.ok(Map.of(
-                "idContenedor", contenedor.getId(),
-                "estado", contenedor.getEstado()));
-    }
-
     // patchs
 
     @PatchMapping("{id}/enViaje")
