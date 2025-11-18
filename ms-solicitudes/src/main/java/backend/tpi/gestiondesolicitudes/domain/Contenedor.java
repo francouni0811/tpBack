@@ -21,8 +21,11 @@ public class Contenedor {
     @JoinColumn(name = "id_cliente", nullable = false)
     private Cliente cliente;
 
+    @Column(name = "pesoKg")
     private BigDecimal pesoKg;
+    @Column(name = "volumen")
     private BigDecimal volumen;
+    @Column(name = "estado")
     private String estado;
 
 }

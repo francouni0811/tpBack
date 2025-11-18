@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import backend.tpi.gestiontransportes.domain.Tramo;
@@ -23,6 +24,7 @@ public class TramoController {
 
     // GET /api/v1/tramos
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN','TRANSPORTISTA')")
     public ResponseEntity<List<Tramo>> obtenerTodos() {
         List<Tramo> lista = tramoService.listarTodos();
         if (lista.isEmpty()) return ResponseEntity.noContent().build();
@@ -31,6 +33,7 @@ public class TramoController {
 
     // GET /api/v1/tramos/{id}
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Tramo> obtenerPorId(@PathVariable("id") Integer id) {
         Optional<Tramo> encontrado = tramoService.buscarPorId(id);
         return encontrado.map(ResponseEntity::ok)
@@ -39,6 +42,7 @@ public class TramoController {
 
     // POST /api/v1/tramos
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Tramo> crear(@Valid @RequestBody Tramo nuevo) {
         Tramo guardado = tramoService.guardar(nuevo);
         return ResponseEntity.status(HttpStatus.CREATED).body(guardado);
@@ -55,6 +59,7 @@ public class TramoController {
 
     // DELETE /api/v1/tramos/{id}
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> borrar(@PathVariable("id") Integer id) {
         if (tramoService.existe(id)) {
             tramoService.eliminarPorId(id);
@@ -64,12 +69,14 @@ public class TramoController {
     }
 
     @GetMapping("{idTramo}/asignar-camion/{idCamion}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Tramo> asignarCamion(@PathVariable("idCamion") Integer idCamion, @PathVariable("idTramo") Integer idTramo) {
         Tramo tramoActualizado = tramoService.asignarCamion(idTramo, idCamion);
         return ResponseEntity.ok(tramoActualizado);
     }
 
     @PatchMapping("{idTramo}/inicio")
+    @PreAuthorize("hasRole('TRANSPORTISTA')")
     public ResponseEntity<Tramo> asignarInicio(@PathVariable Integer idTramo) {
 
         Tramo tramoActualizado = tramoService.iniciarTramo(idTramo);
@@ -77,6 +84,7 @@ public class TramoController {
     }
 
     @PatchMapping("{idTramo}/fin")
+    @PreAuthorize("hasRole('TRANSPORTISTA')")
     public ResponseEntity<Tramo> asignarFin(@PathVariable Integer idTramo) {
 
         Tramo tramoActualizado = tramoService.finalizarTramo(idTramo);

@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -33,6 +34,7 @@ public class ContenedorController {
 
     // GET /api/v1/contenedores
     @GetMapping()
+    @PreAuthorize("hasAnyRole('ADMIN','CLIENTE')")
     public ResponseEntity<List<Contenedor>> obtenerTodosContenedores() {
 
         List<Contenedor> contenedoresEncontrados = contenedorService.listarTodos();
@@ -67,9 +69,11 @@ public class ContenedorController {
                 "idContenedor", contenedor.getId(),
                 "estado", contenedor.getEstado()));
     }
+    
 
     // POST /api/v1/contenedores
     @PostMapping()
+    @PreAuthorize("hasRole('CLIENTE')")
     public ResponseEntity<Contenedor> crearContenedor(@Valid @RequestBody Contenedor nuevoContenedor) {
         Optional<Contenedor> contenedorCreado = contenedorService.guardar(nuevoContenedor);
 
@@ -80,6 +84,7 @@ public class ContenedorController {
 
     // PUT /api/v1/contenedores/{id}
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Contenedor> modificarContenedor(@PathVariable("id") Integer id,
             @Valid @RequestBody Contenedor contenedorActualizar) {
         Optional<Contenedor> contenedorActualizado = contenedorService.modificar(id, contenedorActualizar);
@@ -90,6 +95,7 @@ public class ContenedorController {
 
     // DELETE /api/v1/contenedores/{id}
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> borrarContenedor(@PathVariable Integer id) {
         boolean encontrado = contenedorService.existe(id);
         if (encontrado) {
@@ -102,22 +108,6 @@ public class ContenedorController {
 
     // manejo de estados para los contenedores
     // no retirado, en viaje, en deposito, retirado
-
-    // GET /api/v1/contenedores/{id}/estado
-    // Obtiene el estado de una solicitud por el ID de la solicitud
-
-    @GetMapping("/{id}/estado")
-    public ResponseEntity<Map<String, Object>> obtenerEstadoPorIdContenedor(@PathVariable Integer id) {
-        var contenedorOpt = contenedorService.buscarPorId(id);
-        if (contenedorOpt.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("error", "No existe un contenedor con ID " + id));
-        }
-        var contenedor = contenedorOpt.get();
-        return ResponseEntity.ok(Map.of(
-                "idContenedor", contenedor.getId(),
-                "estado", contenedor.getEstado()));
-    }
 
     // patchs
 

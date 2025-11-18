@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import backend.tpi.gestiontransportes.DTOS.SolicitudDestinoOrigenDTO;
@@ -31,6 +32,7 @@ public class RutaController {
 
     // GET /api/v1/rutas
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<Ruta>> obtenerTodos() {
         List<Ruta> lista = rutaService.listarTodos();
         if (lista.isEmpty())
@@ -40,6 +42,7 @@ public class RutaController {
 
     // GET /api/v1/rutas/{id}
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Ruta> obtenerPorId(@PathVariable("id") Integer id) {
         Optional<Ruta> encontrado = rutaService.buscarPorId(id);
         return encontrado.map(ResponseEntity::ok)
@@ -48,6 +51,7 @@ public class RutaController {
 
     // POST /api/v1/rutas
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Ruta> crear(@Valid @RequestBody Ruta nuevo) {
         Ruta guardado = rutaService.guardar(nuevo);
         return ResponseEntity.status(HttpStatus.CREATED).body(guardado);
@@ -64,6 +68,7 @@ public class RutaController {
 
     // DELETE /api/v1/rutas/{id}
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> borrar(@PathVariable("id") Integer id) {
         if (rutaService.existe(id)) {
             rutaService.eliminarPorId(id);

@@ -7,6 +7,7 @@ import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -33,6 +34,7 @@ public class SolicitudController {
 
     // GET /api/v1/solicitudes
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN','CLIENTE')")
     public ResponseEntity<List<Solicitud>> obtenerTodasSolicitudes() {
 
         List<Solicitud> solicitudesEncontradas = solicitudService.listarTodos();
@@ -45,6 +47,7 @@ public class SolicitudController {
 
     // GET /api/v1/solicitudes/{id}
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN','CLIENTE')")
     public ResponseEntity<Solicitud> obtenerSolicitudPorId(@PathVariable("id") Integer id) {
         Optional<Solicitud> solicitudEncontrada = solicitudService.buscarPorId(id);
         return solicitudEncontrada.map(ResponseEntity::ok)
@@ -54,6 +57,7 @@ public class SolicitudController {
     // GET /api/v1/solicitudes/{id}/estado
     // Obtiene el estado de una solicitud por el ID de la solicitud
     @GetMapping("/{id}/estado")
+    @PreAuthorize("hasAnyRole('ADMIN','CLIENTE')")
     public ResponseEntity<Map<String, Object>> obtenerEstadoPorIdSolicitud(@PathVariable Integer id) {
         var solicitudOpt = solicitudService.buscarPorId(id);
         if (solicitudOpt.isEmpty()) {
@@ -68,6 +72,7 @@ public class SolicitudController {
 
     // POST /api/v1/solicitudes
     @PostMapping
+    @PreAuthorize("hasRole('CLIENTE')")
     public ResponseEntity<Solicitud> crearSolicitud(@Valid @RequestBody Solicitud nuevaSolicitud) {
         Solicitud solicitudCreada = solicitudService.guardar(nuevaSolicitud);
         if (solicitudCreada != null) {
@@ -79,6 +84,7 @@ public class SolicitudController {
 
     // PUT /api/v1/solicitudes/{id}
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN','CLIENTE')")
     public ResponseEntity<Solicitud> modificarSolicitud(@PathVariable("id") Integer id,
             @Valid @RequestBody Solicitud solicitudActualizar) {
         Optional<Solicitud> solicitudActualizada = solicitudService.modificar(id, solicitudActualizar);
@@ -88,6 +94,7 @@ public class SolicitudController {
 
     // DELETE /api/v1/solicitudes/{id}
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> borrarSolicitud(@PathVariable("id") Integer id) {
         boolean encontrada = solicitudService.existe(id);
         if (encontrada) {
@@ -100,6 +107,7 @@ public class SolicitudController {
 
     // GET costo aprox
     @GetMapping("/{id}/costo-aprox")
+    @PreAuthorize("hasAnyRole('ADMIN','CLIENTE')")
     public ResponseEntity<BigDecimal> obtenerCostoAprox(@PathVariable("id") Integer id) {
         BigDecimal costoAprox = solicitudService.obtenerCostoAprox(id);
         if (costoAprox != null) {
@@ -111,6 +119,7 @@ public class SolicitudController {
 
     // GET costo final
     @GetMapping("/{id}/costo-final")
+    @PreAuthorize("hasAnyRole('ADMIN','CLIENTE')")
     public ResponseEntity<BigDecimal> obtenerCostoFinal(@PathVariable("id") Integer id) {
         BigDecimal costoFinal = solicitudService.obtenerCostoFinal(id);
         if (costoFinal != null) {
